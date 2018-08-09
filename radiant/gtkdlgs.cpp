@@ -270,6 +270,7 @@ static void project_remove( GtkWidget *widget, gpointer data ){
 	}
 }
 
+static const char* sLECombiItem = "lifeEngine";
 static const char* sQ3ComboItem = "Quake III Arena";
 static const char* sTAComboItem = "Quake III: Team Arena";
 static const char* sModComboItem = "Custom Quake III modification";

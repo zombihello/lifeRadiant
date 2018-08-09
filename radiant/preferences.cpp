@@ -19,11 +19,11 @@
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-//
-// User preferences
-//
-// Leonardo Zide (leo@lokigames.com)
-//
+ //
+ // User preferences
+ //
+ // Leonardo Zide (leo@lokigames.com)
+ //
 
 #include "stdafx.h"
 #include <glib.h>
@@ -225,20 +225,24 @@
 #define RUN_DEF 0
 #define SUBDIVISIONS_DEF 4
 
-void WindowPosition_Parse( window_position_t& m_value, const CString& value ){
-	if ( sscanf( value.GetBuffer(), "%d %d %d %d", &m_value.x, &m_value.y, &m_value.w, &m_value.h ) != 4 ) {
+void WindowPosition_Parse( window_position_t& m_value, const CString& value )
+{
+	if ( sscanf( value.GetBuffer(), "%d %d %d %d", &m_value.x, &m_value.y, &m_value.w, &m_value.h ) != 4 )
+	{
 		m_value.x = m_value.y = m_value.w = m_value.h = -1;
 	}
 }
 
-void WindowPosition_Write( const window_position_t& m_value, CString& value ){
-	char buffer[64];
+void WindowPosition_Write( const window_position_t& m_value, CString& value )
+{
+	char buffer[ 64 ];
 	sprintf( buffer, "%d %d %d %d", m_value.x, m_value.y, m_value.w, m_value.h );
 	value = buffer;
 }
 
 
-CXMLPropertyBag::CXMLPropertyBag() {
+CXMLPropertyBag::CXMLPropertyBag()
+{
 	mStrFilename = "";
 	mpDoc = NULL;
 	mbEmpty = false;
@@ -246,13 +250,16 @@ CXMLPropertyBag::CXMLPropertyBag() {
 
 // generic preference functions
 
-void CXMLPropertyBag::PushAssignment( const char *name, PrefTypes_t type, void *pV ){
+void CXMLPropertyBag::PushAssignment( const char *name, PrefTypes_t type, void *pV )
+{
 	list<CPrefAssignment>::iterator iAssign;
 	for ( iAssign = mPrefAssignments.begin(); iAssign != mPrefAssignments.end(); iAssign++ )
 	{
-		if ( ( *iAssign ).mName == name ) {
+		if ( ( *iAssign ).mName == name )
+		{
 			// we have it already, check anyway
-			if ( pV != ( *iAssign ).mVal ) {
+			if ( pV != ( *iAssign ).mVal )
+			{
 				Sys_FPrintf( SYS_ERR, "PushAssignment, '%s' has different mVal\n", name );
 				return;
 			}
@@ -262,19 +269,24 @@ void CXMLPropertyBag::PushAssignment( const char *name, PrefTypes_t type, void *
 	mPrefAssignments.push_front( CPrefAssignment( name, type, pV ) );
 }
 
-xmlNodePtr CXMLPropertyBag::EpairForName( const char *name ){
+xmlNodePtr CXMLPropertyBag::EpairForName( const char *name )
+{
 	xmlNodePtr ret = NULL;
 
 	xmlNodePtr pNode = mpDocNode->children;
 	while ( pNode != NULL )
 	{
-		if ( pNode->type == XML_ELEMENT_NODE ) {
-			xmlAttrPtr tmp_attr_ptr = xmlHasProp( pNode, (xmlChar *)"name" );
-			if ( tmp_attr_ptr != NULL && !strcmp( name, (char *)tmp_attr_ptr->children->content ) ) {
-				if ( ret ) {
+		if ( pNode->type == XML_ELEMENT_NODE )
+		{
+			xmlAttrPtr tmp_attr_ptr = xmlHasProp( pNode, ( xmlChar * )"name" );
+			if ( tmp_attr_ptr != NULL && !strcmp( name, ( char * ) tmp_attr_ptr->children->content ) )
+			{
+				if ( ret )
+				{
 					Sys_FPrintf( SYS_WRN, "WARNING: dupe property in CXMLPropertyBag::EpairForName '%s'\n", name );
 				}
-				else {
+				else
+				{
 					ret = pNode;
 				}
 			}
@@ -284,47 +296,56 @@ xmlNodePtr CXMLPropertyBag::EpairForName( const char *name ){
 	return ret;
 }
 
-void CXMLPropertyBag::GetPref( const char *name, Str *pV, const char *V ){
+void CXMLPropertyBag::GetPref( const char *name, Str *pV, const char *V )
+{
 	xmlNodePtr pNode = EpairForName( name );
-	if ( pNode ) {
-		if ( pNode->children && pNode->children->content ) {
+	if ( pNode )
+	{
+		if ( pNode->children && pNode->children->content )
+		{
 			*pV = pNode->children->content;
 		}
-		else {
+		else
+		{
 			// means the pref exists, and that the value is ""
 			*pV = "";
 		}
 	}
 	else
 	{
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)V );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) V );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
 	}
 	// push the pref assignment if needed
 	PushAssignment( name, PREF_STR, pV );
 }
 
-void CXMLPropertyBag::GetPref( const char *name, int *pV, int V ){
+void CXMLPropertyBag::GetPref( const char *name, int *pV, int V )
+{
 	xmlNodePtr pNode;
-	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content ) {
-		*pV = atoi( (char *)pNode->children->content );
+	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content )
+	{
+		*pV = atoi( ( char * ) pNode->children->content );
 	}
 	else
 	{
-		char s[10];
+		char s[ 10 ];
 		sprintf( s, "%d", V );
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)s );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) s );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
 		*pV = V;
 	}
 	// push the pref assignment if needed
 	PushAssignment( name, PREF_INT, pV );
 }
 
-void CXMLPropertyBag::GetPref( const char *name, bool *pV, bool V ){
+void CXMLPropertyBag::GetPref( const char *name, bool *pV, bool V )
+{
 	xmlNodePtr pNode;
-	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content ) {
-		if ( !strcmp( (char *)pNode->children->content, "true" ) ) {
+	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content )
+	{
+		if ( !strcmp( ( char * ) pNode->children->content, "true" ) )
+		{
 			*pV = true;
 		}
 		else
@@ -334,70 +355,77 @@ void CXMLPropertyBag::GetPref( const char *name, bool *pV, bool V ){
 	}
 	else
 	{
-		char s[10];
+		char s[ 10 ];
 		V ? strcpy( s, "true" ) : strcpy( s, "false" );
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)s );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) s );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
 		*pV = V;
 	}
 	// push the pref assignment
 	PushAssignment( name, PREF_BOOL, pV );
 }
 
-void CXMLPropertyBag::GetPref( const char *name, float *pV, float V ){
+void CXMLPropertyBag::GetPref( const char *name, float *pV, float V )
+{
 	xmlNodePtr pNode;
-	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content ) {
-		*pV = atof( (char *)pNode->children->content );
+	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content )
+	{
+		*pV = atof( ( char * ) pNode->children->content );
 	}
 	else
 	{
-		char s[10];
+		char s[ 10 ];
 		sprintf( s, "%f", V );
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)s );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) s );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
 		*pV = V;
 	}
 	// push the pref assignment if needed
 	PushAssignment( name, PREF_FLOAT, pV );
 }
 
-void CXMLPropertyBag::GetPref( const char *name, float* pV, float* V ){
+void CXMLPropertyBag::GetPref( const char *name, float* pV, float* V )
+{
 	xmlNodePtr pNode;
-	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content ) {
-		sscanf( (char *)pNode->children->content, "%f %f %f", &pV[0], &pV[1], &pV[2] );
+	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content )
+	{
+		sscanf( ( char * ) pNode->children->content, "%f %f %f", &pV[ 0 ], &pV[ 1 ], &pV[ 2 ] );
 	}
 	else
 	{
-		char s[128];
-		sprintf( s, "%f %f %f", V[0], V[1], V[2] );
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)s );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
-		pV[0] = V[0];
-		pV[1] = V[1];
-		pV[2] = V[2];
+		char s[ 128 ];
+		sprintf( s, "%f %f %f", V[ 0 ], V[ 1 ], V[ 2 ] );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) s );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
+		pV[ 0 ] = V[ 0 ];
+		pV[ 1 ] = V[ 1 ];
+		pV[ 2 ] = V[ 2 ];
 	}
 	// push the pref assignment if needed
 	PushAssignment( name, PREF_VEC3, pV );
 }
 
-void CXMLPropertyBag::GetPref( const char *name, window_position_t* pV, window_position_t V ){
+void CXMLPropertyBag::GetPref( const char *name, window_position_t* pV, window_position_t V )
+{
 	xmlNodePtr pNode;
-	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content ) {
-		WindowPosition_Parse( *pV, CString( (xmlChar *)pNode->children->content ) );
+	if ( ( pNode = EpairForName( name ) ) && pNode->children && pNode->children->content )
+	{
+		WindowPosition_Parse( *pV, CString( ( xmlChar * ) pNode->children->content ) );
 	}
 	else
 	{
 		CString str;
 		WindowPosition_Write( V, str );
-		pNode = xmlNewChild( mpDocNode, NULL, (xmlChar *)"epair", (xmlChar *)str.GetBuffer() );
-		xmlSetProp( pNode, (xmlChar *)"name", (xmlChar *)name );
+		pNode = xmlNewChild( mpDocNode, NULL, ( xmlChar * )"epair", ( xmlChar * ) str.GetBuffer() );
+		xmlSetProp( pNode, ( xmlChar * )"name", ( xmlChar * ) name );
 		*pV = V;
 	}
 	// push the pref assignment if needed
 	PushAssignment( name, PREF_WNDPOS, pV );
 }
 
-void CXMLPropertyBag::UpdatePrefTree(){
+void CXMLPropertyBag::UpdatePrefTree()
+{
 	// read the assignments and update the tree
 	list<CPrefAssignment>::iterator iPref;
 	for ( iPref = mPrefAssignments.begin(); iPref != mPrefAssignments.end(); iPref++ )
@@ -405,52 +433,55 @@ void CXMLPropertyBag::UpdatePrefTree(){
 		CPrefAssignment *pPref = &( *iPref );
 		// look for the node
 		xmlNodePtr pNode;
-		char s[64];
+		char s[ 64 ];
 
 		pNode = EpairForName( pPref->mName.GetBuffer() );
 		// we never expect that the node could not be found, because this is supposed to happen
 		// after the tree was built with GetPref calls, never on a blank tree
-		if ( !pNode ) {
+		if ( !pNode )
+		{
 			Sys_FPrintf( SYS_ERR, "Unexpected EpairForName '%s' not found in UpdatePrefTree\n", pPref->mName.GetBuffer() );
 			return;
 		}
 		switch ( ( *iPref ).mType )
 		{
 		case PREF_STR:
-			xmlNodeSetContent( pNode, (const xmlChar *)( (Str *)pPref->mVal )->GetBuffer() );
+			xmlNodeSetContent( pNode, ( const xmlChar * ) ( ( Str * ) pPref->mVal )->GetBuffer() );
 			break;
 		case PREF_INT:
-			sprintf( s, "%d", *(int *)pPref->mVal );
-			xmlNodeSetContent( pNode, (xmlChar *)s );
+			sprintf( s, "%d", *( int * ) pPref->mVal );
+			xmlNodeSetContent( pNode, ( xmlChar * ) s );
 			break;
 		case PREF_FLOAT:
-			sprintf( s, "%f", *(float *)pPref->mVal );
-			xmlNodeSetContent( pNode, (xmlChar *)s );
+			sprintf( s, "%f", *( float * ) pPref->mVal );
+			xmlNodeSetContent( pNode, ( xmlChar * ) s );
 			break;
 		case PREF_BOOL:
-			*(bool *)pPref->mVal ? strcpy( s, "true" ) : strcpy( s, "false" );
-			xmlNodeSetContent( pNode, (xmlChar *)s );
+			*( bool * ) pPref->mVal ? strcpy( s, "true" ) : strcpy( s, "false" );
+			xmlNodeSetContent( pNode, ( xmlChar * ) s );
 			break;
 		case PREF_VEC3:
 		{
-			float* v = (float*)pPref->mVal;
-			sprintf( s, "%f %f %f", v[0], v[1], v[2] );
-			xmlNodeSetContent( pNode, (xmlChar *)s );
+			float* v = ( float* ) pPref->mVal;
+			sprintf( s, "%f %f %f", v[ 0 ], v[ 1 ], v[ 2 ] );
+			xmlNodeSetContent( pNode, ( xmlChar * ) s );
 		}
 		break;
 		case PREF_WNDPOS:
 		{
 			CString str;
-			WindowPosition_Write( *(window_position_t*)pPref->mVal, str );
-			xmlNodeSetContent( pNode, (xmlChar*)str.GetBuffer() );
+			WindowPosition_Write( *( window_position_t* ) pPref->mVal, str );
+			xmlNodeSetContent( pNode, ( xmlChar* ) str.GetBuffer() );
 		}
 		break;
 		}
 	}
 }
 
-void CXMLPropertyBag::Clear(){
-	if ( !InUse() ) {
+void CXMLPropertyBag::Clear()
+{
+	if ( !InUse() )
+	{
 		return;
 	}
 
@@ -460,41 +491,48 @@ void CXMLPropertyBag::Clear(){
 	mbEmpty = false;
 }
 
-void CXMLPropertyBag::ReadXMLFile( const char* pFilename ){
+void CXMLPropertyBag::ReadXMLFile( const char* pFilename )
+{
 	mpDoc = xmlParseFile( pFilename );
 
 	// basic checks
-	if ( mpDoc ) {
+	if ( mpDoc )
+	{
 		mpDocNode = mpDoc->children;
-		xmlAttrPtr tmp_attr_ptr = xmlHasProp( mpDocNode, (xmlChar *)"version" );
-		if ( strcmp( (char *)mpDocNode->name, "qpref" ) ) {
+		xmlAttrPtr tmp_attr_ptr = xmlHasProp( mpDocNode, ( xmlChar * )"version" );
+		if ( strcmp( ( char * ) mpDocNode->name, "qpref" ) )
+		{
 			Sys_FPrintf( SYS_ERR, "Unrecognized node '%s' in '%s'\n", mpDocNode->name, mpDoc->URL );
 			xmlFreeDoc( mpDoc );
 			mpDoc = NULL;
 		}
-		else if ( tmp_attr_ptr != NULL && strcmp( (char*)tmp_attr_ptr->children->content, "1" ) ) {
-			Sys_FPrintf( SYS_ERR, "Wrong version '%s' in <qpref> node for '%s'\n", (char*)tmp_attr_ptr->children->content, mpDoc->URL );
+		else if ( tmp_attr_ptr != NULL && strcmp( ( char* ) tmp_attr_ptr->children->content, "1" ) )
+		{
+			Sys_FPrintf( SYS_ERR, "Wrong version '%s' in <qpref> node for '%s'\n", ( char* ) tmp_attr_ptr->children->content, mpDoc->URL );
 			xmlFreeDoc( mpDoc );
 			mpDoc = NULL;
 		}
 		Sys_Printf( "Opened XML property file: '%s'\n", pFilename );
 	}
 
-	if ( !mpDoc ) {
+	if ( !mpDoc )
+	{
 		mbEmpty = true;
 		// no document, create one
-		mpDoc = xmlNewDoc( (xmlChar *)"1.0" );
-		mpDocNode = xmlNewDocNode( mpDoc, NULL, (xmlChar *)"qpref", NULL );
+		mpDoc = xmlNewDoc( ( xmlChar * )"1.0" );
+		mpDocNode = xmlNewDocNode( mpDoc, NULL, ( xmlChar * )"qpref", NULL );
 		xmlDocSetRootElement( mpDoc, mpDocNode );
-		xmlSetProp( mpDocNode, (xmlChar *)"version", (xmlChar *)"1" );
+		xmlSetProp( mpDocNode, ( xmlChar * )"version", ( xmlChar * )"1" );
 		Sys_Printf( "XML property file '%s' invalid/not found, creating blank properties tree\n", pFilename );
 	}
 }
 
-qboolean CXMLPropertyBag::WriteXMLFile( const char* pFilename ){
+qboolean CXMLPropertyBag::WriteXMLFile( const char* pFilename )
+{
 	int res = xmlSaveFormatFile( pFilename, mpDoc, 1 );
 
-	if ( res == -1 ) {
+	if ( res == -1 )
+	{
 		return false;
 	}
 
@@ -507,12 +545,14 @@ qboolean CXMLPropertyBag::WriteXMLFile( const char* pFilename ){
 
 #if !defined( WIN32 )
 // browse for custom editor executable
-static void OnBtnBrowseEditor( GtkWidget *widget, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void OnBtnBrowseEditor( GtkWidget *widget, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 
 	const char *filename = file_dialog( g_PrefsDlg.GetWidget(), TRUE, _( "Executable for Custom Editor" ) );
 
-	if ( filename != NULL ) {
+	if ( filename != NULL )
+	{
 		dlg->m_strEditorCommand = filename;
 		dlg->UpdateData( FALSE );
 	}
@@ -521,16 +561,19 @@ static void OnBtnBrowseEditor( GtkWidget *widget, gpointer data ){
 
 #define PREFERENCES_HAVE_PREFAB_PATH 0
 #if PREFERENCES_HAVE_PREFAB_PATH
-static void OnBtnBrowseprefab( GtkWidget *widget, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void OnBtnBrowseprefab( GtkWidget *widget, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 	char *path = dlg->m_strPrefabPath;
-	if ( strlen( path ) == 0 ) {
+	if ( strlen( path ) == 0 )
+	{
 		path = g_strGameToolsPath;
 	}
 	char *dir = dir_dialog( g_PrefsDlg.GetWidget(), _( "Set prefab path" ), path );
 	dlg->UpdateData( TRUE );
 
-	if ( dir != NULL ) {
+	if ( dir != NULL )
+	{
 		CString strPath;
 		strPath = dir;
 		AddSlash( strPath );
@@ -541,33 +584,38 @@ static void OnBtnBrowseprefab( GtkWidget *widget, gpointer data ){
 }
 #endif
 
-static void OnBtnBrowseuserini( GtkWidget *widget, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void OnBtnBrowseuserini( GtkWidget *widget, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 	char *path = dlg->m_strUserPath;
-	if ( strlen( path ) == 0 ) {
+	if ( strlen( path ) == 0 )
+	{
 		path = g_strGameToolsPath;
 	}
 	// TODO: INI filter?
 	const char *filename = file_dialog( g_PrefsDlg.GetWidget(), TRUE, _( "Find INI file" ), path );
 
-	if ( filename != NULL ) {
+	if ( filename != NULL )
+	{
 		dlg->UpdateData( TRUE );
 		dlg->m_strUserPath = filename;
 		dlg->UpdateData( FALSE );
 	}
 }
 
-static void OnButtonClean( GtkWidget *widget, gpointer data ){
+static void OnButtonClean( GtkWidget *widget, gpointer data )
+{
 	// make sure this is what the user wants
 	if ( gtk_MessageBox( g_PrefsDlg.GetWidget(), _( "This will close Radiant and clean the corresponding registry entries.\n"
-													"Next time you start Radiant it will be good as new. Do you wish to continue?" ),
-						 _( "Reset Registry" ), MB_YESNO ) == IDYES ) {
-		PrefsDlg *dlg = (PrefsDlg*)data;
+		 "Next time you start Radiant it will be good as new. Do you wish to continue?" ),
+		 _( "Reset Registry" ), MB_YESNO ) == IDYES )
+	{
+		PrefsDlg *dlg = ( PrefsDlg* ) data;
 		dlg->EndModal( IDCANCEL );
 
 		g_qeglobals.disable_ini = true;
 		remove( dlg->m_inipath->str );
-		char buf[PATH_MAX];
+		char buf[ PATH_MAX ];
 		sprintf( buf, "%sSavedInfo.bin", dlg->m_rc_path->str );
 		remove( buf );
 		HandleCommand( NULL, GINT_TO_POINTER( ID_FILE_EXIT ) );
@@ -581,7 +629,8 @@ static void OnButtonClean( GtkWidget *widget, gpointer data ){
 // IMPORTANT NOTE: the values here don't matter very much
 // the actual intialization if you start with an empty .ini is done when loading the prefs for the first time
 // profile_load_int takes an argument to use if the value is not found
-PrefsDlg::PrefsDlg (){
+PrefsDlg::PrefsDlg()
+{
 	m_bWarn = TRUE;
 	m_nMouse = 1;
 	m_nView = MainFrame::eRegular;
@@ -626,7 +675,7 @@ PrefsDlg::PrefsDlg (){
 	m_strUserPath = "";
 	m_nRotation = 0;
 	m_bChaseMouse = FALSE;
-        m_bMousewheelZoom = FALSE;
+	m_bMousewheelZoom = FALSE;
 	m_bTextureScrollbar = TRUE;
 	m_bDisplayLists = TRUE;
 	m_bAntialiasedPointsAndLines = FALSE; // Fishman - Add antialiazed points and lines support. 09/03/00
@@ -714,24 +763,27 @@ PrefsDlg::PrefsDlg (){
 #error "unsupported platform"
 #endif
 
-CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
+CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile )
+{
 	char *p, *prop;
 	mpDoc = pDoc;
 	// read the user-friendly game name
 	xmlNodePtr pNode = mpDoc->children;
 
-	while ( strcmp( (const char*)pNode->name, "game" ) && pNode != NULL ) pNode = pNode->next;
-	if ( !pNode ) {
+	while ( strcmp( ( const char* ) pNode->name, "game" ) && pNode != NULL ) pNode = pNode->next;
+	if ( !pNode )
+	{
 		///< \todo add the file name (this node and gametools should all be part of CGameDescription anyway)
 		Error( "Didn't find 'game' node in the game description file '%s'\n", pDoc->URL );
 	}
 	// on win32, game tools path can now be specified relative to the exe's cwd
-	prop = (char*)xmlGetProp( pNode, (xmlChar*)TOOLS_ATTRIBUTE );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( xmlChar* ) TOOLS_ATTRIBUTE );
+	if ( prop == NULL )
+	{
 		Error( "Didn't find '" TOOLS_ATTRIBUTE "' node in the game description file '%s'\n", pDoc->URL );
 	}
 	{
-		char full[PATH_MAX];
+		char full[ PATH_MAX ];
 #ifdef _WIN32
 		_fullpath( full, prop, PATH_MAX );
 #else
@@ -739,19 +791,23 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 #endif
 		xmlFree( prop );
 		prop = NULL;
-		for ( p = full; *p != '\0'; p++ ) {
-			if ( *p == '\\' ) {
+		for ( p = full; *p != '\0'; p++ )
+		{
+			if ( *p == '\\' )
+			{
 				*p = '/';
 			}
 			mGameToolsPath = full;
-			if ( p != full && *( p - 1 ) != '/' ) {
+			if ( p != full && *( p - 1 ) != '/' )
+			{
 				mGameToolsPath += "/";
 			}
 		}
 	}
 
-	prop = (char*)xmlGetProp( pNode, (xmlChar*)"name" );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( xmlChar* )"name" );
+	if ( prop == NULL )
+	{
 		Sys_FPrintf( SYS_WRN, "Warning, 'name' attribute not found in '%s'\n", pDoc->URL );
 		mGameName = pDoc->URL;
 	}
@@ -763,37 +819,47 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 
 	mGameFile = GameFile;
 
-	prop = (char*)xmlGetProp( pNode, (xmlChar*)"idtech2" );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( xmlChar* )"idtech2" );
+	if ( prop == NULL )
+	{
 		// default
 		idTech2 = false;
-	} else {
+	}
+	else
+	{
 		idTech2 = true;
 		xmlFree( prop );
 	}
 
 	// if this is set, the open maps dialoge will open the engine path not the
 	// home dir for map loading and saving
-	prop = (char*)xmlGetProp( pNode, (xmlChar*)"no_maps_in_home" );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( xmlChar* )"no_maps_in_home" );
+	if ( prop == NULL )
+	{
 		// default
 		noMapsInHome = false;
-	} else {
+	}
+	else
+	{
 		noMapsInHome = true;
 		xmlFree( prop );
 	}
 
-	prop = (char*)xmlGetProp( pNode, (xmlChar*)"basegame" );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( xmlChar* )"basegame" );
+	if ( prop == NULL )
+	{
 		// default
 		mBaseGame = "baseq3";
-	} else {
+	}
+	else
+	{
 		mBaseGame = prop;
 		xmlFree( prop );
 	}
 
-	prop = (char*)xmlGetProp( pNode, (const xmlChar*)ENGINE_ATTRIBUTE );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( const xmlChar* ) ENGINE_ATTRIBUTE );
+	if ( prop == NULL )
+	{
 #ifdef _WIN32
 		mEngine = "quake3.exe";
 #elif defined( __linux__ ) || defined( __FreeBSD__ )
@@ -801,13 +867,16 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 #elif __APPLE__
 		mEngine = "Quake3.app";
 #endif
-	} else {
+	}
+	else
+	{
 		mEngine = prop;
 		xmlFree( prop );
 	}
 
-	prop = (char*)xmlGetProp( pNode, (const xmlChar*)MP_ENGINE_ATTRIBUTE );
-	if ( prop == NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( const xmlChar* ) MP_ENGINE_ATTRIBUTE );
+	if ( prop == NULL )
+	{
 #ifdef _WIN32
 		mMultiplayerEngine = "quake3.exe";
 #elif defined( __linux__ ) || defined( __FreeBSD__ )
@@ -815,31 +884,37 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 #elif __APPLE__
 		mMultiplayerEngine = "Quake3.app";
 #endif
-	} else {
+	}
+	else
+	{
 		mMultiplayerEngine = prop;
 		xmlFree( prop );
 	}
 
 	{
 		// on win32, engine path can now be specified relative to the exe's cwd
-		prop = (char*)xmlGetProp( pNode, (const xmlChar *)ENGINEPATH_ATTRIBUTE );
-		if ( prop != NULL ) {
-			char full[PATH_MAX];
-		#ifdef _WIN32
+		prop = ( char* ) xmlGetProp( pNode, ( const xmlChar * ) ENGINEPATH_ATTRIBUTE );
+		if ( prop != NULL )
+		{
+			char full[ PATH_MAX ];
+#ifdef _WIN32
 			_fullpath( full, prop, PATH_MAX );
-		#else
+#else
 			strncpy( full, prop, PATH_MAX );
-		#endif
+#endif
 			xmlFree( prop );
 			prop = NULL;
 			// process seperators
-			for ( p = full; *p != '\0'; p++ ) {
-				if ( *p == '\\' ) {
+			for ( p = full; *p != '\0'; p++ )
+			{
+				if ( *p == '\\' )
+				{
 					*p = '/';
 				}
 			}
 			mEnginePath = full;
-			if ( p != full && *( p - 1 ) != '/' ) {
+			if ( p != full && *( p - 1 ) != '/' )
+			{
 				mEnginePath += "/";
 			}
 		}
@@ -847,12 +922,13 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 		{
 			// if engine path was not specified in the .game, it implies we can guess it from the gametools path
 			// on win32, and for most game package, the gametools are installed with the game
-			char aux_path[PATH_MAX]; // aux
+			char aux_path[ PATH_MAX ]; // aux
 			strcpy( aux_path, mGameToolsPath.GetBuffer() );
-			if ( ( aux_path[ strlen( aux_path ) - 1 ] == '/' ) || ( aux_path[ strlen( aux_path ) - 1 ] == '\\' ) ) {
-				aux_path[strlen( aux_path ) - 1] = '\0'; // strip ending '/' if any
+			if ( ( aux_path[ strlen( aux_path ) - 1 ] == '/' ) || ( aux_path[ strlen( aux_path ) - 1 ] == '\\' ) )
+			{
+				aux_path[ strlen( aux_path ) - 1 ] = '\0'; // strip ending '/' if any
 			}
-			char up_path[PATH_MAX]; // up one level
+			char up_path[ PATH_MAX ]; // up one level
 			ExtractFilePath( aux_path, up_path );
 			mEnginePath = up_path;
 		}
@@ -860,70 +936,90 @@ CGameDescription::CGameDescription( xmlDocPtr pDoc, const Str &GameFile ){
 
 	// Resolve the executables path for games which provide their binaries
 	// or map compiling tools in external locations.
-	prop = (char*)xmlGetProp( pNode, (const xmlChar *)EXECUTABLES_ATTRIBUTE );
-	if ( prop != NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( const xmlChar * ) EXECUTABLES_ATTRIBUTE );
+	if ( prop != NULL )
+	{
 		mExecutablesPath = prop;
 		xmlFree( prop );
 		prop = NULL;
-	} else {
+	}
+	else
+	{
 		mExecutablesPath = mEnginePath.GetBuffer();
 	}
 
 	// Resolve the per-user directory.
-	prop = (char*)xmlGetProp( pNode, (const xmlChar *)PREFIX_ATTRIBUTE );
-	if ( prop != NULL ) {
+	prop = ( char* ) xmlGetProp( pNode, ( const xmlChar * ) PREFIX_ATTRIBUTE );
+	if ( prop != NULL )
+	{
 		mUserPathPrefix = prop;
 		xmlFree( prop );
 		prop = NULL;
 	}
 
-	mShaderPath = xmlGetProp( pNode, (const xmlChar *)"shaderpath" );
-	if ( !mShaderPath.GetLength() ) {
+	mShaderPath = xmlGetProp( pNode, ( const xmlChar * )"shaderpath" );
+	if ( !mShaderPath.GetLength() )
+	{
 		mShaderPath = "scripts/";
 		mShaderlist = "scripts/shaderlist.txt";
-	} else {
+	}
+	else
+	{
 		AddSlash( mShaderPath );
 		mShaderlist = mShaderPath;
 		mShaderlist += "shaderlist.txt";
 	}
-	xmlChar* default_scale = xmlGetProp( pNode, (const xmlChar *)"default_scale" );
-	if ( default_scale ) {
-		mTextureDefaultScale = atof( (const char *)default_scale );
+	xmlChar* default_scale = xmlGetProp( pNode, ( const xmlChar * )"default_scale" );
+	if ( default_scale )
+	{
+		mTextureDefaultScale = atof( ( const char * ) default_scale );
 		xmlFree( default_scale );
-                default_scale = NULL;
+		default_scale = NULL;
 	}
-	else{
+	else
+	{
 		mTextureDefaultScale = 0.5f;
 	}
-	xmlChar* eclass_singleload = xmlGetProp( pNode, (const xmlChar*)"eclass_singleload" );
-	if ( eclass_singleload ) {
+	xmlChar* eclass_singleload = xmlGetProp( pNode, ( const xmlChar* )"eclass_singleload" );
+	if ( eclass_singleload )
+	{
 		mEClassSingleLoad = true;
 		xmlFree( eclass_singleload );
-                eclass_singleload = NULL;
-	} else {
+		eclass_singleload = NULL;
+	}
+	else
+	{
 		mEClassSingleLoad = false;
 	}
-	xmlChar* no_patch = xmlGetProp( pNode, (const xmlChar *)"no_patch" );
-	if ( no_patch ) {
+	xmlChar* no_patch = xmlGetProp( pNode, ( const xmlChar * )"no_patch" );
+	if ( no_patch )
+	{
 		mNoPatch = true;
 		xmlFree( no_patch );
-                no_patch = NULL;
-	} else {
+		no_patch = NULL;
+	}
+	else
+	{
 		mNoPatch = false;
 	}
-	xmlChar* caulk_shader = xmlGetProp( pNode, (const xmlChar *)"caulk_shader" );
-	if ( caulk_shader ) {
+	xmlChar* caulk_shader = xmlGetProp( pNode, ( const xmlChar * )"caulk_shader" );
+	if ( caulk_shader )
+	{
 		mCaulkShader = caulk_shader;
 		xmlFree( caulk_shader );
-                caulk_shader = NULL;
-	} else {
+		caulk_shader = NULL;
+	}
+	else
+	{
 		mCaulkShader = "textures/common/caulk";
 	}
 }
 
-void CGameDescription::Dump(){
+void CGameDescription::Dump()
+{
 #ifdef _WIN32
-	if ( CGameDialog::GetNetrun() ) {
+	if ( CGameDialog::GetNetrun() )
+	{
 		Sys_Printf( "Running in network mode, prefs path set to '%s'\n", g_strTempPath.GetBuffer() );
 	}
 #endif
@@ -942,8 +1038,10 @@ void CGameDescription::Dump(){
 	Sys_Printf( "patches supported    : %s\n", mNoPatch ? "No" : "Yes" );
 }
 
-CPrefAssignment& CPrefAssignment::operator =( const CPrefAssignment& ass ){
-	if ( &ass != this ) {
+CPrefAssignment& CPrefAssignment::operator =( const CPrefAssignment& ass )
+{
+	if ( &ass != this )
+	{
 		mName = ass.mName;
 		mType = ass.mType;
 		mVal = ass.mVal;
@@ -951,13 +1049,16 @@ CPrefAssignment& CPrefAssignment::operator =( const CPrefAssignment& ass ){
 	return *this;
 }
 
-CPrefAssignment::CPrefAssignment( const CPrefAssignment& ass ){
+CPrefAssignment::CPrefAssignment( const CPrefAssignment& ass )
+{
 	*this = ass;
 }
 
-void CGameDialog::LoadPrefs(){
+void CGameDialog::LoadPrefs()
+{
 	// if we already have a document loaded, we will free and reload from file
-	if ( mGlobalPrefs.InUse() ) {
+	if ( mGlobalPrefs.InUse() )
+	{
 		Sys_Printf( "Reloading global prefs from file\n" );
 		mGlobalPrefs.Clear();
 	}
@@ -974,7 +1075,8 @@ void CGameDialog::LoadPrefs(){
 	// in a very particular post-.pid startup
 	// we may have the console turned on and want to keep it that way
 	// so we use a latching system
-	if ( m_bForceLogConsole ) {
+	if ( m_bForceLogConsole )
+	{
 		m_bLogConsole = true;
 		Sys_Printf( "console logging has been latched on, saving prefs\n" );
 		SavePrefs();
@@ -985,45 +1087,53 @@ void CGameDialog::LoadPrefs(){
 	// it is important that we would log console as early as possible to make it useful
 	Sys_LogFile();
 
-	if ( mGlobalPrefs.mbEmpty ) {
+	if ( mGlobalPrefs.mbEmpty )
+	{
 		Sys_Printf( "Saving global.pref with default pref values\n" );
 		SavePrefs();
 	}
 }
 
-void CGameDialog::SavePrefs(){
+void CGameDialog::SavePrefs()
+{
 	// update the tree and save it
 	mGlobalPrefs.UpdatePrefTree();
 
 	CString strGlobalPref = g_PrefsDlg.m_global_rc_path->str;
 	strGlobalPref += "global.pref";
 
-	if ( !mGlobalPrefs.WriteXMLFile( strGlobalPref.GetBuffer() ) ) {
+	if ( !mGlobalPrefs.WriteXMLFile( strGlobalPref.GetBuffer() ) )
+	{
 		Sys_FPrintf( SYS_ERR, "Error occured while saving global prefs file '%s'\n", strGlobalPref.GetBuffer() );
 	}
 }
 
-void CGameDialog::DoGameInstall() {
+void CGameDialog::DoGameInstall()
+{
 	// make sure console logging is on whenever we enter the installation loop
 	g_PrefsDlg.mGamesDialog.m_bLogConsole = true;
 	Sys_LogFile();
 	mGameInstall.Run();
 }
 
-void CGameDialog::DoGameDialog() {
+void CGameDialog::DoGameDialog()
+{
 	// allow looping the game selection dialog with calls to the game configure dialog in between
 	// NOTE: This is *very early* in the process lifetime, we can't call Error() for instance
-	while ( m_bDoGameInstall ) {
+	while ( m_bDoGameInstall )
+	{
 
 		m_bDoGameInstall = false;
 
-		if ( DoModal() == IDCANCEL ) {
+		if ( DoModal() == IDCANCEL )
+		{
 			gtk_MessageBox( NULL, _( "Run again once you have decided which game you are interested in :-)" ), _( "Message" ), MB_OK );
 			exit( 0 );
 			return;
 		}
 
-		if ( m_bDoGameInstall ) {
+		if ( m_bDoGameInstall )
+		{
 			DoGameInstall();
 			ScanForGames();
 			// and we will loop to do another DoModal dialog
@@ -1038,14 +1148,16 @@ void CGameDialog::DoGameDialog() {
 	SavePrefs();
 }
 
-GtkWidget* CGameDialog::GetGlobalFrame(){
+GtkWidget* CGameDialog::GetGlobalFrame()
+{
 	GtkWidget *vbox, *text, *combo, *check;
 
-	if ( mFrame != NULL ) {
+	if ( mFrame != NULL )
+	{
 		return mFrame;
 	}
 
-	mFrame = gtk_frame_new( _( "Select a game" ) );
+	mFrame = gtk_frame_new( _( "Select profile" ) );
 	gtk_container_set_border_width( GTK_CONTAINER( mFrame ), 5 );
 	gtk_widget_show( mFrame );
 
@@ -1054,9 +1166,9 @@ GtkWidget* CGameDialog::GetGlobalFrame(){
 	gtk_container_set_border_width( GTK_CONTAINER( vbox ), 5 );
 	gtk_widget_show( vbox );
 
-	/*text = gtk_label_new( _( "Select the game:" ) );
+	text = gtk_label_new( _( "Select profile:" ) );
 	gtk_widget_show( text );
-	gtk_box_pack_start( GTK_BOX( vbox ), text, FALSE, FALSE, 0 );*/
+	gtk_box_pack_start( GTK_BOX( vbox ), text, FALSE, FALSE, 0 );
 
 	combo = gtk_combo_box_text_new();
 	gtk_box_pack_start( GTK_BOX( vbox ), combo, FALSE, FALSE, 0 );
@@ -1066,7 +1178,7 @@ GtkWidget* CGameDialog::GetGlobalFrame(){
 
 	UpdateGameCombo();
 
-	check = gtk_check_button_new_with_label( _( "Auto load selected game on startup" ) );
+	check = gtk_check_button_new_with_label( _( "Auto load selected profile on startup" ) );
 	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
 	gtk_widget_show( check );
 	AddDialogData( check, &m_bAutoLoadGame, DLG_CHECK_BOOL );
@@ -1094,14 +1206,17 @@ GtkWidget* CGameDialog::GetGlobalFrame(){
 	return mFrame;
 }
 
-void CGameDialog::UpdateData( bool retrieve ) {
-	if ( !retrieve ) {
+void CGameDialog::UpdateData( bool retrieve )
+{
+	if ( !retrieve )
+	{
 		// use m_sGameFile to set m_nComboSelect
 		list<CGameDescription *>::iterator iGame;
 		int i = 0;
 		for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
 		{
-			if ( ( *iGame )->mGameFile == m_sGameFile ) {
+			if ( ( *iGame )->mGameFile == m_sGameFile )
+			{
 				m_nComboSelect = i;
 				break;
 			}
@@ -1112,7 +1227,8 @@ void CGameDialog::UpdateData( bool retrieve ) {
 #endif
 	}
 	Dialog::UpdateData( retrieve );
-	if ( retrieve ) {
+	if ( retrieve )
+	{
 		// use m_nComboSelect to set m_sGameFile
 		list<CGameDescription *>::iterator iGame = mGames.begin();
 		int i;
@@ -1127,17 +1243,19 @@ void CGameDialog::UpdateData( bool retrieve ) {
 	}
 }
 
-void CGameDialog::SInstallCallback( GtkWidget *widget, gpointer data ) {
+void CGameDialog::SInstallCallback( GtkWidget *widget, gpointer data )
+{
 	CGameDialog *d = static_cast< CGameDialog* >( data );
 	d->m_bDoGameInstall = true;
 	d->EndModal( 0 );
 }
 
-void CGameDialog::BuildDialog() {
+void CGameDialog::BuildDialog()
+{
 	GtkWidget *dlg, *vbox1, *button, *setup_button;
 
 	dlg = m_pWidget;
-	gtk_window_set_title( GTK_WINDOW( dlg ), _( "Select a game" ) );
+	gtk_window_set_title( GTK_WINDOW( dlg ), _( "Select profile" ) );
 
 	vbox1 = gtk_vbox_new( FALSE, 0 );
 	gtk_container_set_border_width( GTK_CONTAINER( vbox1 ), 5 );
@@ -1147,16 +1265,16 @@ void CGameDialog::BuildDialog() {
 	gtk_container_add( GTK_CONTAINER( vbox1 ), GetGlobalFrame() );
 	mTopBox = vbox1;
 
-	button = gtk_button_new_with_label( _( "Start editor on selected game" ) );
+	button = gtk_button_new_with_label( _( "Start editor on selected profile" ) );
 	gtk_box_pack_start( GTK_BOX( vbox1 ), button, FALSE, FALSE, 0 );
 	gtk_widget_show( button );
 	AddModalButton( button, IDOK );
 
-	setup_button = gtk_button_new_with_label( _( "Configure editor for another game" ) );
+	setup_button = gtk_button_new_with_label( _( "Configure editor for another profile" ) );
 	gtk_box_pack_start( GTK_BOX( vbox1 ), setup_button, FALSE, FALSE, 0 );
 	gtk_widget_show( setup_button );
 	g_signal_connect( G_OBJECT( setup_button ), "clicked",
-		G_CALLBACK( SInstallCallback ), this );
+					  G_CALLBACK( SInstallCallback ), this );
 
 	button = gtk_button_new_with_label( _( "Exit" ) );
 	gtk_box_pack_start( GTK_BOX( vbox1 ), button, TRUE, TRUE, 0 );
@@ -1166,12 +1284,14 @@ void CGameDialog::BuildDialog() {
 	gtk_widget_set_size_request( dlg, 320, -1 );
 }
 
-void CGameDialog::UpdateGameCombo() {
+void CGameDialog::UpdateGameCombo()
+{
 	// fill in with the game descriptions
 	list<CGameDescription *>::iterator iGame;
 	GtkListStore *store;
 
-	if ( mGameCombo == NULL ) {
+	if ( mGameCombo == NULL )
+	{
 		Sys_Printf( "mGameCombo == NULL\n" );
 		return;
 	}
@@ -1183,13 +1303,15 @@ void CGameDialog::UpdateGameCombo() {
 	store = GTK_LIST_STORE( gtk_combo_box_get_model( GTK_COMBO_BOX( mGameCombo ) ) );
 	gtk_list_store_clear( store );
 #endif
-	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ ) {
+	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
+	{
 		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( mGameCombo ), ( *iGame )->mGameName.GetBuffer() );
 	}
 	gtk_combo_box_set_active( GTK_COMBO_BOX( mGameCombo ), 0 );
 }
 
-void CGameDialog::ScanForGames(){
+void CGameDialog::ScanForGames()
+{
 	CString strPath;
 	char *dirlist;
 	GDir *dir;
@@ -1197,10 +1319,12 @@ void CGameDialog::ScanForGames(){
 	strGamesPath += "games";
 	const char *path = strGamesPath.GetBuffer();
 
-	if ( !mGames.empty() ) {
+	if ( !mGames.empty() )
+	{
 		Sys_Printf( "Clearing game list\n" );
 		list<CGameDescription*>::iterator iGame;
-		for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ ) {
+		for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
+		{
 			delete ( *iGame );
 		}
 		mGames.clear();
@@ -1217,15 +1341,17 @@ void CGameDialog::ScanForGames(){
 	   (if that's really needed)
 	 */
 
-	// FIXME need to catch the 'no game description' situation and exit with a clean error
+	 // FIXME need to catch the 'no game description' situation and exit with a clean error
 
 	dir = g_dir_open( path, 0, NULL );
 
-	if ( dir != NULL ) {
+	if ( dir != NULL )
+	{
 		while ( 1 )
 		{
 			const gchar* name = g_dir_read_name( dir );
-			if ( name == NULL ) {
+			if ( name == NULL )
+			{
 				break;
 			}
 
@@ -1234,14 +1360,16 @@ void CGameDialog::ScanForGames(){
 			strlwr( dirlist );
 #endif
 			char *ext = strrchr( dirlist, '.' );
-			if ( ( ext == NULL ) || ( strcmp( ext, ".game" ) != 0 ) ) {
+			if ( ( ext == NULL ) || ( strcmp( ext, ".game" ) != 0 ) && ( strcmp( ext, ".engine" ) != 0 ) )
+			{
 				continue;
 			}
 			strPath.Format( "%s/%s", path, dirlist );
 			Sys_Printf( "%s\n", strPath.GetBuffer() );
 			// got one, load it
 			xmlDocPtr pDoc = xmlParseFile( strPath.GetBuffer() );
-			if ( pDoc ) {
+			if ( pDoc )
+			{
 				mGames.push_front( new CGameDescription( pDoc, dirlist ) );
 			}
 			else
@@ -1258,18 +1386,22 @@ void CGameDialog::ScanForGames(){
 	UpdateGameCombo();
 }
 
-CGameDescription* CGameDialog::GameDescriptionForComboItem(){
+CGameDescription* CGameDialog::GameDescriptionForComboItem()
+{
 	list<CGameDescription *>::iterator iGame;
 	int i = 0;
-	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++,i++ ) {
-		if ( i == m_nComboSelect ) {
+	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++, i++ )
+	{
+		if ( i == m_nComboSelect )
+		{
 			return ( *iGame );
 		}
 	}
 	return NULL; // not found
 }
 
-void CGameDialog::InitGlobalPrefPath(){
+void CGameDialog::InitGlobalPrefPath()
+{
 	GString *global_rc_path;
 	// configure m_global_rc_path
 	// this is the g_strTempPath, and it has already been mkdir'ed
@@ -1277,8 +1409,10 @@ void CGameDialog::InitGlobalPrefPath(){
 	g_PrefsDlg.m_global_rc_path = global_rc_path;
 }
 
-void CGameDialog::Reset(){
-	if ( !g_PrefsDlg.m_global_rc_path ) {
+void CGameDialog::Reset()
+{
+	if ( !g_PrefsDlg.m_global_rc_path )
+	{
 		InitGlobalPrefPath();
 	}
 	CString strGlobalPref = g_PrefsDlg.m_global_rc_path->str;
@@ -1286,33 +1420,40 @@ void CGameDialog::Reset(){
 	remove( strGlobalPref.GetBuffer() );
 }
 
-void CGameDialog::Init(){
+void CGameDialog::Init()
+{
 	InitGlobalPrefPath();
 	ScanForGames();
-	if ( mGames.empty() ) {
+	if ( mGames.empty() )
+	{
 		DoGameInstall();
 		ScanForGames();
-		if ( mGames.empty() ) {
+		if ( mGames.empty() )
+		{
 			Error( "No games setup, aborting\n" );
 		}
 	}
 	LoadPrefs();
-	if ( m_bAutoLoadGame ) {
+	if ( m_bAutoLoadGame )
+	{
 		// search by .game name
 		list<CGameDescription *>::iterator iGame;
 		for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
 		{
-			if ( ( *iGame )->mGameFile == m_sGameFile ) {
+			if ( ( *iGame )->mGameFile == m_sGameFile )
+			{
 				m_pCurrentGameDescription = ( *iGame );
 				break;
 			}
 		}
 	}
-	if ( !m_bAutoLoadGame || !m_pCurrentGameDescription ) {
+	if ( !m_bAutoLoadGame || !m_pCurrentGameDescription )
+	{
 		DoGameDialog();
 		// use m_nComboSelect to identify the game to run as and set the globals
 		m_pCurrentGameDescription = GameDescriptionForComboItem();
-		if ( !m_pCurrentGameDescription ) {
+		if ( !m_pCurrentGameDescription )
+		{
 			Error( "Lookup of game description object failed, can't continue\n" );
 		}
 	}
@@ -1322,7 +1463,8 @@ void CGameDialog::Init(){
 	g_strExecutablesPath = g_pGameDescription->mExecutablesPath;
 
 	// Add the per-user game path on all platforms
-	if ( m_pCurrentGameDescription->mUserPathPrefix.GetLength() ) {
+	if ( m_pCurrentGameDescription->mUserPathPrefix.GetLength() )
+	{
 #if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
 		g_qeglobals.m_strHomeGame = g_get_home_dir();
 		g_qeglobals.m_strHomeGame += "/";
@@ -1334,15 +1476,19 @@ void CGameDialog::Init(){
 		g_qeglobals.m_strHomeGame += m_pCurrentGameDescription->mUserPathPrefix.GetBuffer();
 		g_qeglobals.m_strHomeGame += "\\";
 #endif
-	} else {
+	}
+	else
+	{
 		g_qeglobals.m_strHomeGame = g_pGameDescription->mEnginePath.GetBuffer();
 	}
 
 	g_pGameDescription->Dump();
 }
 
-CGameDialog::~CGameDialog(){
-	if ( mFrame ) {
+CGameDialog::~CGameDialog()
+{
+	if ( mFrame )
+	{
 		// NOTE I'm not too sure how reliable this is
 		g_object_unref( GTK_WIDGET( mFrame ) );
 	}
@@ -1355,32 +1501,44 @@ CGameDialog::~CGameDialog(){
 	}
 }
 
-void CGameDialog::AddPacksURL( Str &URL ){
+void CGameDialog::AddPacksURL( Str &URL )
+{
 	// add the URLs for the list of game packs installed
 	// FIXME: this is kinda hardcoded for now..
 	list<CGameDescription *>::iterator iGame;
 	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
 	{
-		if ( ( *iGame )->mGameFile == "q3.game" ) {
+		if ( ( *iGame )->mGameFile == "q3.game" )
+		{
 			URL += "&Games_dlup%5B%5D=1";
 		}
-		else if ( ( *iGame )->mGameFile == "wolf.game" ) {
+		if ( ( *iGame )->mGameFile == "le.engine" )
+		{
+			URL += "&Games_dlup%5B%5D=8";
+		}
+		else if ( ( *iGame )->mGameFile == "wolf.game" )
+		{
 			URL += "&Games_dlup%5B%5D=2";
 		}
 		// FIXME: double entry
-		else if ( ( *iGame )->mGameFile == "wolf.game" ) {
+		else if ( ( *iGame )->mGameFile == "wolf.game" )
+		{
 			URL += "&Games_dlup%5B%5D=3";
 		}
-		else if ( ( *iGame )->mGameFile == "jk2.game" ) {
+		else if ( ( *iGame )->mGameFile == "jk2.game" )
+		{
 			URL += "&Games_dlup%5B%5D=4";
 		}
-		else if ( ( *iGame )->mGameFile == "stvef.game" ) {
+		else if ( ( *iGame )->mGameFile == "stvef.game" )
+		{
 			URL += "&Games_dlup%5B%5D=5";
 		}
-		else if ( ( *iGame )->mGameFile == "sof2.game" ) {
+		else if ( ( *iGame )->mGameFile == "sof2.game" )
+		{
 			URL += "&Games_dlup%5B%5D=6";
 		}
-		else if ( ( *iGame )->mGameFile == "ja.game" ) {
+		else if ( ( *iGame )->mGameFile == "ja.game" )
+		{
 			URL += "&Games_dlup%5B%5D=7";
 		}
 	}
@@ -1392,27 +1550,33 @@ void CGameDialog::AddPacksURL( Str &URL ){
 
 bool CGameDialog::m_bNetRun;
 
-void CGameDialog::UpdateNetrun( bool retrieve ){
+void CGameDialog::UpdateNetrun( bool retrieve )
+{
 	FILE *f_netrun;
 	CString strNetrun;
 	strNetrun = g_strAppPath; strNetrun += NETRUN_FILENAME;
-	if ( !retrieve ) {
+	if ( !retrieve )
+	{
 		// now check if we are running from a network installation
 		// use a dummy file as the flag
 		f_netrun = fopen( strNetrun.GetBuffer(), "r" );
-		if ( f_netrun ) {
+		if ( f_netrun )
+		{
 			fclose( f_netrun );
 			m_bNetRun = true;
 		}
-		else{
+		else
+		{
 			m_bNetRun = false;
 		}
 	}
 	else
 	{
-		if ( m_bNetRun ) {
+		if ( m_bNetRun )
+		{
 			f_netrun = fopen( strNetrun.GetBuffer(), "w" );
-			if ( !f_netrun ) {
+			if ( !f_netrun )
+			{
 				Sys_FPrintf( SYS_ERR, "ERROR: Failed to create netrun file '%s'\n", strNetrun.GetBuffer() );
 				m_bNetRun = false;
 			}
@@ -1424,8 +1588,10 @@ void CGameDialog::UpdateNetrun( bool retrieve ){
 		}
 		else
 		{
-			if ( remove( strNetrun.GetBuffer() ) == -1 ) {
-				if ( errno != ENOENT ) {
+			if ( remove( strNetrun.GetBuffer() ) == -1 )
+			{
+				if ( errno != ENOENT )
+				{
 					Sys_FPrintf( SYS_ERR, "Failed to remove netrun file '%s'\n", strNetrun.GetBuffer() );
 				}
 				m_bNetRun = true;
@@ -1438,7 +1604,8 @@ void CGameDialog::UpdateNetrun( bool retrieve ){
 	}
 }
 
-bool CGameDialog::GetNetrun(){
+bool CGameDialog::GetNetrun()
+{
 	return m_bNetRun;
 }
 #endif
@@ -1462,13 +1629,15 @@ bool CGameDialog::GetNetrun(){
 
 #define PREFS_LOCAL_FILENAME "local.pref"
 
-void PrefsDlg::Init(){
+void PrefsDlg::Init()
+{
 	mGamesDialog.Init();
 
 	// m_global_rc_path has been set above, do m_rc_path with game specific stuff now
 	// the win32 and linux versions have been unified for network mode
 #ifdef _WIN32
-	if ( !CGameDialog::GetNetrun() ) {
+	if ( !CGameDialog::GetNetrun() )
+	{
 		// legacy prefs settings, this goes where the game pack is installed
 		m_rc_path = g_string_new( g_strGameToolsPath.GetBuffer() );
 		m_inipath = g_string_new( m_rc_path->str );
@@ -1490,11 +1659,14 @@ void PrefsDlg::Init(){
 
 }
 
-void PrefsDlg::UpdateData( bool retrieve ){
+void PrefsDlg::UpdateData( bool retrieve )
+{
 	// leo: the "changed" signal confuses the update function
-	if ( m_pWidget == NULL ) {
+	if ( m_pWidget == NULL )
+	{
 		return;
 	}
+
 	mGamesDialog.UpdateData( retrieve );
 	Dialog::UpdateData( retrieve );
 }
@@ -1505,63 +1677,72 @@ void PrefsDlg::UpdateData( bool retrieve ){
 #define PREFSHSPACE 0
 #endif
 
-static void UpdateSensitivity( GtkWidget *widget, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void UpdateSensitivity( GtkWidget *widget, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 	dlg->DoSensitivity();
 }
 
-static void UpdateEditorSensitivity( GtkWidget *widget, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void UpdateEditorSensitivity( GtkWidget *widget, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 	dlg->DoEditorSensitivity();
 }
 
 // start new prefs dialog
 
 /*! Utility function for swapping notebook pages for tree list selections */
-void PrefsDlg::showPrefPage( int prefpage ){
-	if ( gtk_notebook_get_current_page( GTK_NOTEBOOK( notebook ) ) != prefpage ) {
+void PrefsDlg::showPrefPage( int prefpage )
+{
+	if ( gtk_notebook_get_current_page( GTK_NOTEBOOK( notebook ) ) != prefpage )
+	{
 		gtk_notebook_set_current_page( GTK_NOTEBOOK( notebook ), prefpage );
 	}
 
 	return;
 }
 
-static void treeSelection( GtkTreeSelection* selection, gpointer data ){
-	PrefsDlg *dlg = (PrefsDlg*)data;
+static void treeSelection( GtkTreeSelection* selection, gpointer data )
+{
+	PrefsDlg *dlg = ( PrefsDlg* ) data;
 
 	GtkTreeModel* model;
 	GtkTreeIter selected;
-	if ( gtk_tree_selection_get_selected( selection, &model, &selected ) ) {
+	if ( gtk_tree_selection_get_selected( selection, &model, &selected ) )
+	{
 		int prefpage;
-		gtk_tree_model_get( model, &selected, 1, (gpointer*)&prefpage, -1 );
+		gtk_tree_model_get( model, &selected, 1, ( gpointer* ) &prefpage, -1 );
 		dlg->showPrefPage( prefpage );
 	}
 }
 
 #ifdef _WIN32
-static void OnX64Toggle( GtkWidget *widget, gpointer data ) {
-  Dialog * d = static_cast< Dialog * >( data );
-  if ( !d->IsModal() ) {
-    // calls to gtk_toggle_button_get_active trigger the "toggle" signal to fire .. so ignore unless we're in the modal dialog
-    return;
-  }
-  gtk_MessageBox( widget, _( "You must restart Radiant for the change to take effect." ) );
-  g_PrefsDlg.m_nLastProjectVer = -1;
-  g_PrefsDlg.m_strLastProject = "";
+static void OnX64Toggle( GtkWidget *widget, gpointer data )
+{
+	Dialog * d = static_cast< Dialog * >( data );
+	if ( !d->IsModal() )
+	{
+		// calls to gtk_toggle_button_get_active trigger the "toggle" signal to fire .. so ignore unless we're in the modal dialog
+		return;
+	}
+	gtk_MessageBox( widget, _( "You must restart Radiant for the change to take effect." ) );
+	g_PrefsDlg.m_nLastProjectVer = -1;
+	g_PrefsDlg.m_strLastProject = "";
 }
 #endif
 
-void PrefsDlg::BuildDialog(){
+void PrefsDlg::BuildDialog()
+{
 	// Main Preferences dialog
 	GtkWidget *dialog, *mainvbox, *hbox, *sc_win, *preflabel;
 
 	GtkWidget *ftw_label, *fth_label;
 	// Widgets on notebook pages
 	GtkWidget *check, *label, *scale, *hbox2, *combo,
-	*table, *spin,  *entry, *pixmap,
-	*radio, *button, *pageframe, *vbox;
+		*table, *spin, *entry, *pixmap,
+		*radio, *button, *pageframe, *vbox;
 	GtkSizeGroup *size_group;
-	GList *combo_list = (GList*)NULL;
+	GList *combo_list = ( GList* ) NULL;
 	GList *lst;
 	GtkAdjustment *adj;
 
@@ -1624,7 +1805,7 @@ void PrefsDlg::BuildDialog(){
 
 		{
 			GtkCellRenderer* renderer = gtk_cell_renderer_text_new();
-			GtkTreeViewColumn* column = gtk_tree_view_column_new_with_attributes( _( "Preferences" ), renderer, "text", 0, (char *) NULL );
+			GtkTreeViewColumn* column = gtk_tree_view_column_new_with_attributes( _( "Preferences" ), renderer, "text", 0, ( char * ) NULL );
 			gtk_tree_view_append_column( GTK_TREE_VIEW( view ), column );
 		}
 
@@ -1648,7 +1829,7 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Game settings" ), 1, (gpointer)PTAB_GAME_SETTINGS, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Game settings" ), 1, ( gpointer ) PTAB_GAME_SETTINGS, -1 );
 				}
 			}
 
@@ -1659,17 +1840,17 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "2D Display/Rendering" ), 1, (gpointer)PTAB_2D, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "2D Display/Rendering" ), 1, ( gpointer ) PTAB_2D, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "3D View" ), 1, (gpointer)PTAB_CAMERA, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "3D View" ), 1, ( gpointer ) PTAB_CAMERA, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Texture Settings" ), 1, (gpointer)PTAB_TEXTURE, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Texture Settings" ), 1, ( gpointer ) PTAB_TEXTURE, -1 );
 				}
 			}
 
@@ -1680,17 +1861,17 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Layout" ), 1, (gpointer)PTAB_LAYOUT, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Layout" ), 1, ( gpointer ) PTAB_LAYOUT, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Mouse" ), 1, (gpointer)PTAB_MOUSE, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Mouse" ), 1, ( gpointer ) PTAB_MOUSE, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Editing" ), 1, (gpointer)PTAB_EDITING, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Editing" ), 1, ( gpointer ) PTAB_EDITING, -1 );
 				}
 			}
 
@@ -1701,27 +1882,28 @@ void PrefsDlg::BuildDialog(){
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Startup/Auto save" ), 1, (gpointer)PTAB_STARTUP, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Startup/Auto save" ), 1, ( gpointer ) PTAB_STARTUP, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Paths" ), 1, (gpointer)PTAB_PATHS, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Paths" ), 1, ( gpointer ) PTAB_PATHS, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Brush" ), 1, (gpointer)PTAB_BRUSH, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Brush" ), 1, ( gpointer ) PTAB_BRUSH, -1 );
 				}
 				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "Misc" ), 1, (gpointer)PTAB_MISC, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "Misc" ), 1, ( gpointer ) PTAB_MISC, -1 );
 				}
-				if ( !g_qeglobals.bBSPFrontendPlugin ) {
+				if ( !g_qeglobals.bBSPFrontendPlugin )
+				{
 					GtkTreeIter tab;
 					gtk_tree_store_append( store, &tab, &group );
-					gtk_tree_store_set( store, &tab, 0, _( "BSP Monitoring" ), 1, (gpointer)PTAB_BSPMONITOR, -1 );
+					gtk_tree_store_set( store, &tab, 0, _( "BSP Monitoring" ), 1, ( gpointer ) PTAB_BSPMONITOR, -1 );
 				}
 			}
 		}
@@ -1893,25 +2075,25 @@ void PrefsDlg::BuildDialog(){
 
 	label = gtk_label_new( _( "Use paint-select in camera view:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 	combo = gtk_combo_box_text_new();
 	gtk_table_attach( GTK_TABLE( table ), combo, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( combo );
 	AddDialogData( combo, &m_nCamDragMultiSelect, DLG_COMBO_BOX_INT );
 
 	combo_list = NULL;
-	combo_list = g_list_append( combo_list, (void *)_( "No" ) );
-	combo_list = g_list_append( combo_list, (void *)_( "Yes" ) );
-	combo_list = g_list_append( combo_list, (void *)_( "Yes (Classic Key Setup)" ) );
-	for( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	combo_list = g_list_append( combo_list, ( void * ) _( "No" ) );
+	combo_list = g_list_append( combo_list, ( void * ) _( "Yes" ) );
+	combo_list = g_list_append( combo_list, ( void * ) _( "Yes (Classic Key Setup)" ) );
+	for ( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
 	{
-		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), (const char *)lst->data );
+		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), ( const char * ) lst->data );
 	}
 	g_list_free( combo_list );
 
@@ -2021,16 +2203,16 @@ void PrefsDlg::BuildDialog(){
 
 	label = gtk_label_new( _( "Texture Compression (if available):" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 
 	combo = gtk_combo_box_text_new();
 	gtk_table_attach( GTK_TABLE( table ), combo, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( combo );
 	AddDialogData( combo, &m_nTextureCompressionFormat, DLG_COMBO_BOX_INT );
 
@@ -2038,23 +2220,25 @@ void PrefsDlg::BuildDialog(){
 	// Texture compression choice label
 	combo_list = NULL;
 	// NONE will always be in pos 0
-	combo_list = g_list_append( combo_list, (void *)_( "None" ) );
+	combo_list = g_list_append( combo_list, ( void * ) _( "None" ) );
 
 	// if OpenGL compression is enabled it will always be
 	// in pos 1
-	if ( g_qeglobals.m_bOpenGLCompressionSupported ) {
-		combo_list = g_list_append( combo_list, (void *)_( "OpenGL ARB" ) );
+	if ( g_qeglobals.m_bOpenGLCompressionSupported )
+	{
+		combo_list = g_list_append( combo_list, ( void * ) _( "OpenGL ARB" ) );
 	}
 
 	// If S3 is enabled offer all 3 valid compression schemes in RGBA
-	if ( g_qeglobals.m_bS3CompressionSupported ) {
-		combo_list = g_list_append( combo_list, (void *)_( "S3TC DXT1" ) );
-		combo_list = g_list_append( combo_list, (void *)_( "S3TC DXT3" ) );
-		combo_list = g_list_append( combo_list, (void *)_( "S3TC DXT5" ) );
-	}
-	for( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	if ( g_qeglobals.m_bS3CompressionSupported )
 	{
-		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), (const char *)lst->data );
+		combo_list = g_list_append( combo_list, ( void * ) _( "S3TC DXT1" ) );
+		combo_list = g_list_append( combo_list, ( void * ) _( "S3TC DXT3" ) );
+		combo_list = g_list_append( combo_list, ( void * ) _( "S3TC DXT5" ) );
+	}
+	for ( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	{
+		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), ( const char * ) lst->data );
 	}
 	g_list_free( combo_list );
 
@@ -2069,34 +2253,37 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Startup Shaders:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 	combo = gtk_combo_box_text_new();
 	gtk_table_attach( GTK_TABLE( table ), combo, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( combo );
 	AddDialogData( combo, &m_nLatchedShader, DLG_COMBO_BOX_INT );
 
 	// combo list
 	combo_list = NULL;
-	combo_list = g_list_append( combo_list, (void *)_( "None" ) );
-	if ( g_pGameDescription->mGameFile == "jk2.game" || g_pGameDescription->mGameFile == "ja.game" ) {
-		combo_list = g_list_append( combo_list, (void *)_( "System" ) );
-	}
-	else if ( g_pGameDescription->mGameFile == "sof2.game" ) {
-		combo_list = g_list_append( combo_list, (void *)( "Tools" ) );
-	}
-	else{
-		combo_list = g_list_append( combo_list, (void *)_( "Common" ) );
-	}
-	combo_list = g_list_append( combo_list, (void *)_( "All" ) );
-	for( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	combo_list = g_list_append( combo_list, ( void * ) _( "None" ) );
+	if ( g_pGameDescription->mGameFile == "jk2.game" || g_pGameDescription->mGameFile == "ja.game" )
 	{
-		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), (const char *)lst->data );
+		combo_list = g_list_append( combo_list, ( void * ) _( "System" ) );
+	}
+	else if ( g_pGameDescription->mGameFile == "sof2.game" )
+	{
+		combo_list = g_list_append( combo_list, ( void * ) ( "Tools" ) );
+	}
+	else
+	{
+		combo_list = g_list_append( combo_list, ( void * ) _( "Common" ) );
+	}
+	combo_list = g_list_append( combo_list, ( void * ) _( "All" ) );
+	for ( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	{
+		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), ( const char * ) lst->data );
 	}
 	g_list_free( combo_list );
 
@@ -2116,7 +2303,7 @@ void PrefsDlg::BuildDialog(){
 
 	spin = gtk_spin_button_new( GTK_ADJUSTMENT( gtk_adjustment_new( 1, 1, 1024, 1, 10, 0 ) ), 1, 0 );
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
-	g_object_set( spin, "xalign", 1.0, (char*)NULL );
+	g_object_set( spin, "xalign", 1.0, ( char* ) NULL );
 	gtk_box_pack_start( GTK_BOX( hbox2 ), spin, FALSE, FALSE, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_nFixedTextureSizeWidth, DLG_SPIN_INT );
@@ -2132,7 +2319,7 @@ void PrefsDlg::BuildDialog(){
 
 	spin = gtk_spin_button_new( GTK_ADJUSTMENT( gtk_adjustment_new( 1, 1, 1024, 1, 10, 0 ) ), 1, 0 );
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
-	g_object_set( spin, "xalign", 1.0, (char*)NULL );
+	g_object_set( spin, "xalign", 1.0, ( char* ) NULL );
 	gtk_box_pack_start( GTK_BOX( hbox2 ), spin, FALSE, FALSE, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_nFixedTextureSizeHeight, DLG_SPIN_INT );
@@ -2170,59 +2357,59 @@ void PrefsDlg::BuildDialog(){
 	gtk_widget_show( table );
 
 	// view type 1
-	pixmap = new_image_icon("window1.png");
+	pixmap = new_image_icon( "window1.png" );
 	gtk_table_attach( GTK_TABLE( table ), pixmap, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( pixmap );
 
 	// view type 2
-	pixmap = new_image_icon("window2.png");
+	pixmap = new_image_icon( "window2.png" );
 	gtk_table_attach( GTK_TABLE( table ), pixmap, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( pixmap );
 
 	// view type 3
-	pixmap = new_image_icon("window3.png");
+	pixmap = new_image_icon( "window3.png" );
 	gtk_table_attach( GTK_TABLE( table ), pixmap, 2, 3, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( pixmap );
 
 	// view type 4
-	pixmap = new_image_icon("window4.png");
+	pixmap = new_image_icon( "window4.png" );
 	gtk_table_attach( GTK_TABLE( table ), pixmap, 3, 4, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( pixmap );
 
 	// view type 1 selector
 	radio = gtk_radio_button_new( NULL );
 	gtk_table_attach( GTK_TABLE( table ), radio, 0, 1, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( radio );
 
 	// view type 2 selector
 	radio = gtk_radio_button_new_from_widget( GTK_RADIO_BUTTON( radio ) );
 	gtk_table_attach( GTK_TABLE( table ), radio, 1, 2, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( radio );
 
 	// view type 3 selector
 	radio = gtk_radio_button_new_from_widget( GTK_RADIO_BUTTON( radio ) );
 	gtk_table_attach( GTK_TABLE( table ), radio, 2, 3, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( radio );
 
 	// view type 4 selector
 	radio = gtk_radio_button_new_from_widget( GTK_RADIO_BUTTON( radio ) );
 	gtk_table_attach( GTK_TABLE( table ), radio, 3, 4, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( radio );
 	AddDialogData( radio, &m_nLatchedView, DLG_RADIO_INT );
 
@@ -2238,7 +2425,8 @@ void PrefsDlg::BuildDialog(){
 	gtk_widget_show( check );
 	AddDialogData( check, &m_bLatchedDetachableMenus, DLG_CHECK_BOOL );
 
-	if ( !g_pGameDescription->mNoPatch ) {
+	if ( !g_pGameDescription->mNoPatch )
+	{
 		// show patch toolbar
 		check = gtk_check_button_new_with_label( _( "Patch Toolbar" ) );
 		gtk_widget_show( check );
@@ -2326,7 +2514,7 @@ void PrefsDlg::BuildDialog(){
 	gtk_widget_show( check );
 	AddDialogData( check, &m_bALTEdge, DLG_CHECK_BOOL );
 
-        // Imroved mouse wheel zoom in
+	// Imroved mouse wheel zoom in
 	check = gtk_check_button_new_with_label( _( "Improved mousewheel zoom-in" ) );
 	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
 	gtk_widget_show( check );
@@ -2419,8 +2607,8 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Rotation increment:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
@@ -2428,8 +2616,8 @@ void PrefsDlg::BuildDialog(){
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
 	gtk_entry_set_alignment( GTK_ENTRY( spin ), 1.0 ); //right
 	gtk_table_attach( GTK_TABLE( table ), spin, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_nRotation, DLG_SPIN_INT );
 
@@ -2437,8 +2625,8 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Undo Levels:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 1, 2,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
@@ -2447,8 +2635,8 @@ void PrefsDlg::BuildDialog(){
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
 	gtk_entry_set_alignment( GTK_ENTRY( spin ), 1.0 ); //right
 	gtk_table_attach( GTK_TABLE( table ), spin, 1, 2, 1, 2,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_nUndoLevels, DLG_SPIN_INT );
 
@@ -2456,8 +2644,8 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Patch subdivisions:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 2, 3,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
@@ -2466,8 +2654,8 @@ void PrefsDlg::BuildDialog(){
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
 	gtk_entry_set_alignment( GTK_ENTRY( spin ), 1.0 ); //right
 	gtk_table_attach( GTK_TABLE( table ), spin, 1, 2, 2, 3,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_nSubdivisions, DLG_SPIN_INT );
 
@@ -2562,16 +2750,16 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Prefab path:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 	// path entry
 	entry = gtk_entry_new();
 	gtk_table_attach( GTK_TABLE( table ), entry, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 1, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 1, 0 );
 	gtk_widget_show( entry );
 	AddDialogData( entry, &m_strPrefabPath, DLG_ENTRY_TEXT );
 
@@ -2580,8 +2768,8 @@ void PrefsDlg::BuildDialog(){
 	button = gtk_button_new_with_label( _( "..." ) );
 	g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseprefab ), this );
 	gtk_table_attach( GTK_TABLE( table ), button, 2, 3, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( button );
 #endif
 
@@ -2589,16 +2777,16 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "User INI path:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 	// user ini path entry
 	entry = gtk_entry_new();
 	gtk_table_attach( GTK_TABLE( table ), entry, 1, 2, 1, 2,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 1, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 1, 0 );
 	gtk_widget_show( entry );
 	AddDialogData( entry, &m_strUserPath, DLG_ENTRY_TEXT );
 
@@ -2606,8 +2794,8 @@ void PrefsDlg::BuildDialog(){
 	button = gtk_button_new_with_label( _( "..." ) );
 	g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseuserini ), this );
 	gtk_table_attach( GTK_TABLE( table ), button, 2, 3, 1, 2,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( button );
 
 	// Add the page to the notebook
@@ -2628,8 +2816,8 @@ void PrefsDlg::BuildDialog(){
 	// default texture scale
 	// table
 	table = gtk_table_new( 2, 1, FALSE ); // I believe that the 2 and 1 are switched here, and this is
-	                                      // intentional to be consistent with other calls to gtk_table_new()
-	                                      // [that are probably also switched].
+										  // intentional to be consistent with other calls to gtk_table_new()
+										  // [that are probably also switched].
 	gtk_box_pack_start( GTK_BOX( vbox ), table, FALSE, TRUE, 0 );
 	gtk_table_set_row_spacings( GTK_TABLE( table ), 5 );
 	gtk_table_set_col_spacings( GTK_TABLE( table ), 5 );
@@ -2638,8 +2826,8 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Default texture scale:" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
@@ -2647,8 +2835,8 @@ void PrefsDlg::BuildDialog(){
 	gtk_spin_button_set_numeric( GTK_SPIN_BUTTON( spin ), TRUE );
 	gtk_entry_set_alignment( GTK_ENTRY( spin ), 1.0 ); //right
 	gtk_table_attach( GTK_TABLE( table ), spin, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( spin );
 	AddDialogData( spin, &m_fDefTextureScale, DLG_SPIN_FLOAT );
 
@@ -2691,25 +2879,25 @@ void PrefsDlg::BuildDialog(){
 	label = gtk_label_new( _( "Light radiuses:" ) );
 
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	gtk_widget_show( label );
 
 	combo = gtk_combo_box_text_new();
 	gtk_table_attach( GTK_TABLE( table ), combo, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_widget_show( combo );
 	AddDialogData( combo, &m_nLightRadiuses, DLG_COMBO_BOX_INT );
 
 	combo_list = NULL;
-	combo_list = g_list_append( combo_list, (void *)_( "Disabled" ) );
-	combo_list = g_list_append( combo_list, (void *)_( "True Q3Map2 Style" ) );
-	combo_list = g_list_append( combo_list, (void *)_( "Classic Style" ) );
-	for( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
+	combo_list = g_list_append( combo_list, ( void * ) _( "Disabled" ) );
+	combo_list = g_list_append( combo_list, ( void * ) _( "True Q3Map2 Style" ) );
+	combo_list = g_list_append( combo_list, ( void * ) _( "Classic Style" ) );
+	for ( lst = combo_list; lst != NULL; lst = g_list_next( lst ) )
 	{
-		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), (const char *)lst->data );
+		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( combo ), ( const char * ) lst->data );
 	}
 	g_list_free( combo_list );
 
@@ -2738,8 +2926,8 @@ void PrefsDlg::BuildDialog(){
 	// label
 	label = gtk_label_new( _( "Custom Editor Command" ) );
 	gtk_table_attach( GTK_TABLE( table ), label, 0, 1, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	gtk_misc_set_alignment( GTK_MISC( label ), 0.0, 0.5 );
 	g_object_set_data( G_OBJECT( dialog ), "label_customeditor", label );
 	gtk_widget_set_sensitive( label, g_PrefsDlg.m_bUseCustomEditor );
@@ -2748,8 +2936,8 @@ void PrefsDlg::BuildDialog(){
 	// custom editor command entry
 	entry = gtk_entry_new();
 	gtk_table_attach( GTK_TABLE( table ), entry, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 1, 0 );
+		( GtkAttachOptions ) ( GTK_FILL ),
+					  ( GtkAttachOptions ) ( 0 ), 1, 0 );
 	AddDialogData( entry, &m_strEditorCommand, DLG_ENTRY_TEXT );
 	gtk_widget_set_sensitive( entry, g_PrefsDlg.m_bUseCustomEditor );
 	g_object_set_data( G_OBJECT( dialog ), "entry_customeditor", entry );
@@ -2759,8 +2947,8 @@ void PrefsDlg::BuildDialog(){
 	button = gtk_button_new_with_label( _( "..." ) );
 	g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseEditor ), this );
 	gtk_table_attach( GTK_TABLE( table ), button, 2, 3, 0, 1,
-					  (GtkAttachOptions) ( 0 ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
+		( GtkAttachOptions ) ( 0 ),
+					  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 	g_object_set_data( G_OBJECT( dialog ), "button_customeditor", button );
 	gtk_widget_set_sensitive( button, g_PrefsDlg.m_bUseCustomEditor );
 	gtk_widget_show( button );
@@ -2820,12 +3008,12 @@ void PrefsDlg::BuildDialog(){
 	AddDialogData( check, &g_PrefsDlg.m_bQ3Map2Texturing, DLG_CHECK_BOOL );
 
 #ifdef _WIN32
-        // use 64 bit q3map2
-        check = gtk_check_button_new_with_label( _( "Use 64 bit q3map2" ) );
-        gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
-        gtk_widget_show( check );
-        g_object_set_data( G_OBJECT( dialog ), "check_x64_q3map2", check );
-        AddDialogData( check, &g_PrefsDlg.m_bx64q3map2, DLG_CHECK_BOOL );
+	// use 64 bit q3map2
+	check = gtk_check_button_new_with_label( _( "Use 64 bit q3map2" ) );
+	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
+	gtk_widget_show( check );
+	g_object_set_data( G_OBJECT( dialog ), "check_x64_q3map2", check );
+	AddDialogData( check, &g_PrefsDlg.m_bx64q3map2, DLG_CHECK_BOOL );
 	g_signal_connect( G_OBJECT( check ), "toggled", G_CALLBACK( OnX64Toggle ), this );
 #endif
 
@@ -2838,40 +3026,46 @@ void PrefsDlg::BuildDialog(){
 
 // end new prefs dialog
 
-void PrefsDlg::LoadTexdefPref( texdef_t* pTexdef, const char* pName ){
-	char buffer[256];
+void PrefsDlg::LoadTexdefPref( texdef_t* pTexdef, const char* pName )
+{
+	char buffer[ 256 ];
 
 	memset( pTexdef, 0, sizeof( texdef_t ) );
 
 	sprintf( buffer, "%s%s", pName, TD_SCALE1_KEY );
-	mLocalPrefs.GetPref( buffer, &pTexdef->scale[0],   0.5f );
+	mLocalPrefs.GetPref( buffer, &pTexdef->scale[ 0 ], 0.5f );
 
 	sprintf( buffer, "%s%s", pName, TD_SCALE2_KEY );
-	mLocalPrefs.GetPref( buffer, &pTexdef->scale[1],   0.5f );
+	mLocalPrefs.GetPref( buffer, &pTexdef->scale[ 1 ], 0.5f );
 
 	sprintf( buffer, "%s%s", pName, TD_SHIFT1_KEY );
-	mLocalPrefs.GetPref( buffer, &pTexdef->shift[0],   8.f );
+	mLocalPrefs.GetPref( buffer, &pTexdef->shift[ 0 ], 8.f );
 
 	sprintf( buffer, "%s%s", pName, TD_SHIFT2_KEY );
-	mLocalPrefs.GetPref( buffer, &pTexdef->shift[1],   8.f );
+	mLocalPrefs.GetPref( buffer, &pTexdef->shift[ 1 ], 8.f );
 
 	sprintf( buffer, "%s%s", pName, TD_ROTATE_KEY );
-	mLocalPrefs.GetPref( buffer, &pTexdef->rotate,     45 );
+	mLocalPrefs.GetPref( buffer, &pTexdef->rotate, 45 );
 }
 
-void PrefsDlg::UpdateTextureCompression(){
+void PrefsDlg::UpdateTextureCompression()
+{
 	// if OpenGL is not ready yet, don't do anything
-	if ( !g_qeglobals.m_bOpenGLReady ) {
+	if ( !g_qeglobals.m_bOpenGLReady )
+	{
 		Sys_Printf( "OpenGL not ready - postpone texture compression capability check\n" );
 		return;
 	}
 
-	if ( g_qeglobals.bTextureCompressionSupported ) {
-		if ( m_nTextureCompressionFormat >= 2 && !g_qeglobals.m_bS3CompressionSupported ) {
+	if ( g_qeglobals.bTextureCompressionSupported )
+	{
+		if ( m_nTextureCompressionFormat >= 2 && !g_qeglobals.m_bS3CompressionSupported )
+		{
 			Sys_Printf( "Inconsistant pref setting for texture compression (%d), rolling back\n", m_nTextureCompressionFormat );
 			m_nTextureCompressionFormat = 1; // if this is not supported either, see below
 		}
-		if ( m_nTextureCompressionFormat == 1 && !g_qeglobals.m_bOpenGLCompressionSupported ) {
+		if ( m_nTextureCompressionFormat == 1 && !g_qeglobals.m_bOpenGLCompressionSupported )
+		{
 			Sys_Printf( "Inconsistant pref setting for texture compression (GL_COMPRESSED_RGBA), rolling back\n" );
 			m_nTextureCompressionFormat = 0;
 		}
@@ -2918,21 +3112,25 @@ void PrefsDlg::UpdateTextureCompression(){
 }
 
 #ifdef ATIHACK_812
-void PrefsDlg::UpdateATIHack() {
+void PrefsDlg::UpdateATIHack()
+{
 	// if OpenGL is not ready yet, don't do anything
-	if ( !g_qeglobals.m_bOpenGLReady ) {
+	if ( !g_qeglobals.m_bOpenGLReady )
+	{
 		Sys_Printf( "OpenGL not ready - postpone ATI bug workaround setup\n" );
 		return;
 	}
 
-	if ( m_bGlATIHack ) {
+	if ( m_bGlATIHack )
+	{
 		qglCullFace = &qglCullFace_ATIHack;
 		qglDisable = &qglDisable_ATIHack;
 		qglEnable = &qglEnable_ATIHack;
 		qglPolygonMode = &qglPolygonMode_ATIHack;
 		Sys_Printf( "ATI bug workaround enabled\n" );
 	}
-	else {
+	else
+	{
 		qglCullFace = qglCullFace_real;
 		qglDisable = qglDisable_real;
 		qglEnable = qglEnable_real;
@@ -2946,22 +3144,24 @@ void PrefsDlg::UpdateATIHack() {
 // initiliaze it for sure. It is not totally failsafe but we can use the same
 // code than in q3map, expecting to find some "quake" above us. If not, we prompt
 // for the engine executable path
-void PrefsDlg::LoadPrefs(){
+void PrefsDlg::LoadPrefs()
+{
 	int i;
 
 	// first things first, load prefs from global prefs
 	mGamesDialog.LoadPrefs();
 
 	// if we already have a document loaded, we will free and reload from file
-	if ( mLocalPrefs.InUse() ) {
+	if ( mLocalPrefs.InUse() )
+	{
 		mLocalPrefs.Clear();
 	}
 
 	// load local.pref file
 	mLocalPrefs.ReadXMLFile( m_inipath->str );
 
-	mLocalPrefs.GetPref( PATCHSHOWBOUNDS_KEY,  &g_bPatchShowBounds,  FALSE );
-	mLocalPrefs.GetPref( MOUSE_KEY,            &m_nMouse,            MOUSE_DEF );
+	mLocalPrefs.GetPref( PATCHSHOWBOUNDS_KEY, &g_bPatchShowBounds, FALSE );
+	mLocalPrefs.GetPref( MOUSE_KEY, &m_nMouse, MOUSE_DEF );
 	m_nMouseButtons = m_nMouse ? 3 : 2;
 
 	// project file
@@ -2980,185 +3180,189 @@ void PrefsDlg::LoadPrefs(){
 	mLocalPrefs.GetPref( PREFAB_KEY, &m_strPrefabPath, strPrefab );
 
 	mLocalPrefs.GetPref( LASTLIGHTINTENSITY_KEY, &m_iLastLightIntensity, 300 );
-	mLocalPrefs.GetPref( TLOCK_KEY,              &m_bTextureLock,        TLOCK_DEF );
-	mLocalPrefs.GetPref( RLOCK_KEY,              &m_bRotateLock,         TLOCK_DEF );
-	mLocalPrefs.GetPref( LASTMAP_KEY,            &m_strLastMap,          "" );
-	mLocalPrefs.GetPref( LOADLAST_KEY,           &m_bLoadLast,           LOADLAST_DEF );
-	mLocalPrefs.GetPref( BSP_KEY,                &m_bInternalBSP,        FALSE );
-	mLocalPrefs.GetPref( RCLICK_KEY,             &m_bRightClick,         TRUE );
-	mLocalPrefs.GetPref( AUTOSAVE_KEY,           &m_bAutoSave,           TRUE );
-	mLocalPrefs.GetPref( LOADLASTMAP_KEY,        &m_bLoadLastMap,        FALSE );
-	mLocalPrefs.GetPref( TINYBRUSH_KEY,          &m_bCleanTiny,          FALSE );
-	mLocalPrefs.GetPref( TINYSIZE_KEY,           &m_fTinySize,           0.5f );
-	mLocalPrefs.GetPref( AUTOSAVETIME_KEY,       &m_nAutoSave,           5 );
-	mLocalPrefs.GetPref( SAVEBEEP_KEY,           &m_bSaveBeep,           TRUE );
-	mLocalPrefs.GetPref( SNAPSHOT_KEY,           &m_bSnapShots,          FALSE );
-	mLocalPrefs.GetPref( MOVESPEED_KEY,          &m_nMoveSpeed,          100 );
-	mLocalPrefs.GetPref( ANGLESPEED_KEY,         &m_nAngleSpeed,         3 );
-	mLocalPrefs.GetPref( SETGAME_KEY,            &m_bSetGame,            FALSE );
-	mLocalPrefs.GetPref( CAMXYUPDATE_KEY,        &m_bCamXYUpdate,        TRUE );
+	mLocalPrefs.GetPref( TLOCK_KEY, &m_bTextureLock, TLOCK_DEF );
+	mLocalPrefs.GetPref( RLOCK_KEY, &m_bRotateLock, TLOCK_DEF );
+	mLocalPrefs.GetPref( LASTMAP_KEY, &m_strLastMap, "" );
+	mLocalPrefs.GetPref( LOADLAST_KEY, &m_bLoadLast, LOADLAST_DEF );
+	mLocalPrefs.GetPref( BSP_KEY, &m_bInternalBSP, FALSE );
+	mLocalPrefs.GetPref( RCLICK_KEY, &m_bRightClick, TRUE );
+	mLocalPrefs.GetPref( AUTOSAVE_KEY, &m_bAutoSave, TRUE );
+	mLocalPrefs.GetPref( LOADLASTMAP_KEY, &m_bLoadLastMap, FALSE );
+	mLocalPrefs.GetPref( TINYBRUSH_KEY, &m_bCleanTiny, FALSE );
+	mLocalPrefs.GetPref( TINYSIZE_KEY, &m_fTinySize, 0.5f );
+	mLocalPrefs.GetPref( AUTOSAVETIME_KEY, &m_nAutoSave, 5 );
+	mLocalPrefs.GetPref( SAVEBEEP_KEY, &m_bSaveBeep, TRUE );
+	mLocalPrefs.GetPref( SNAPSHOT_KEY, &m_bSnapShots, FALSE );
+	mLocalPrefs.GetPref( MOVESPEED_KEY, &m_nMoveSpeed, 100 );
+	mLocalPrefs.GetPref( ANGLESPEED_KEY, &m_nAngleSpeed, 3 );
+	mLocalPrefs.GetPref( SETGAME_KEY, &m_bSetGame, FALSE );
+	mLocalPrefs.GetPref( CAMXYUPDATE_KEY, &m_bCamXYUpdate, TRUE );
 	mLocalPrefs.GetPref( CAMDRAGMULTISELECT_KEY, &m_nCamDragMultiSelect, TRUE );
-	mLocalPrefs.GetPref( CAMFREELOOK_KEY,        &m_bCamFreeLook,        TRUE );
-	mLocalPrefs.GetPref( CAMINVERSEMOUSE_KEY,    &m_bCamInverseMouse,    FALSE );
-	mLocalPrefs.GetPref( CAMDISCRETE_KEY,        &m_bCamDiscrete,        TRUE );
-	mLocalPrefs.GetPref( LIGHTDRAW_KEY,          &m_bNewLightDraw,       TRUE );
-	mLocalPrefs.GetPref( CUBICCLIP_KEY,          &m_bCubicClipping,      FALSE );
-	mLocalPrefs.GetPref( CUBICSCALE_KEY,         &m_nCubicScale,         13 );
-	mLocalPrefs.GetPref( ALTEDGE_KEY,            &m_bALTEdge,            FALSE );
-	mLocalPrefs.GetPref( FACECOLORS_KEY,         &m_bFaceColors,         FALSE );
-	mLocalPrefs.GetPref( XZVIS_KEY,              &m_bXZVis,              FALSE );
-	mLocalPrefs.GetPref( YZVIS_KEY,              &m_bYZVis,              FALSE );
-	mLocalPrefs.GetPref( ZVIS_KEY,               &m_bZVis,               FALSE );
-	mLocalPrefs.GetPref( SIZEPAINT_KEY,          &m_bSizePaint,                  FALSE );
-	mLocalPrefs.GetPref( DLLENTITIES_KEY,        &m_bDLLEntities,                FALSE );
+	mLocalPrefs.GetPref( CAMFREELOOK_KEY, &m_bCamFreeLook, TRUE );
+	mLocalPrefs.GetPref( CAMINVERSEMOUSE_KEY, &m_bCamInverseMouse, FALSE );
+	mLocalPrefs.GetPref( CAMDISCRETE_KEY, &m_bCamDiscrete, TRUE );
+	mLocalPrefs.GetPref( LIGHTDRAW_KEY, &m_bNewLightDraw, TRUE );
+	mLocalPrefs.GetPref( CUBICCLIP_KEY, &m_bCubicClipping, FALSE );
+	mLocalPrefs.GetPref( CUBICSCALE_KEY, &m_nCubicScale, 13 );
+	mLocalPrefs.GetPref( ALTEDGE_KEY, &m_bALTEdge, FALSE );
+	mLocalPrefs.GetPref( FACECOLORS_KEY, &m_bFaceColors, FALSE );
+	mLocalPrefs.GetPref( XZVIS_KEY, &m_bXZVis, FALSE );
+	mLocalPrefs.GetPref( YZVIS_KEY, &m_bYZVis, FALSE );
+	mLocalPrefs.GetPref( ZVIS_KEY, &m_bZVis, FALSE );
+	mLocalPrefs.GetPref( SIZEPAINT_KEY, &m_bSizePaint, FALSE );
+	mLocalPrefs.GetPref( DLLENTITIES_KEY, &m_bDLLEntities, FALSE );
 
-	mLocalPrefs.GetPref( DETACHABLEMENUS_KEY,    &m_bLatchedDetachableMenus,            TRUE );
+	mLocalPrefs.GetPref( DETACHABLEMENUS_KEY, &m_bLatchedDetachableMenus, TRUE );
 	m_bDetachableMenus = m_bLatchedDetachableMenus;
 
-	if ( g_pGameDescription->mNoPatch ) {
+	if ( g_pGameDescription->mNoPatch )
+	{
 		m_bPatchToolbar = false;
 	}
 	else
 	{
-		mLocalPrefs.GetPref( PATCHTOOLBAR_KEY,       &m_bLatchedPatchToolbar,               TRUE );
+		mLocalPrefs.GetPref( PATCHTOOLBAR_KEY, &m_bLatchedPatchToolbar, TRUE );
 		m_bPatchToolbar = m_bLatchedPatchToolbar;
 	}
 
-	mLocalPrefs.GetPref( WIDETOOLBAR_KEY,        &m_bLatchedWideToolbar,                TRUE );
+	mLocalPrefs.GetPref( WIDETOOLBAR_KEY, &m_bLatchedWideToolbar, TRUE );
 	m_bWideToolbar = m_bLatchedWideToolbar;
 
 	mLocalPrefs.GetPref( PLUGINTOOLBAR_KEY, &m_bLatchedPluginToolbar, TRUE );
 	m_bPluginToolbar = m_bLatchedPluginToolbar;
 
-	mLocalPrefs.GetPref( WINDOW_KEY,             (int*)&m_nLatchedView,  WINDOW_DEF );
+	mLocalPrefs.GetPref( WINDOW_KEY, ( int* ) &m_nLatchedView, WINDOW_DEF );
 	m_nView = m_nLatchedView;
 
-	mLocalPrefs.GetPref( FLOATINGZ_KEY,          &m_bLatchedFloatingZ,           FALSE );
+	mLocalPrefs.GetPref( FLOATINGZ_KEY, &m_bLatchedFloatingZ, FALSE );
 	m_bFloatingZ = m_bLatchedFloatingZ;
 
-	mLocalPrefs.GetPref( TEXTUREQUALITY_KEY,     &m_nLatchedTextureQuality,             3 );
+	mLocalPrefs.GetPref( TEXTUREQUALITY_KEY, &m_nLatchedTextureQuality, 3 );
 	m_nTextureQuality = m_nLatchedTextureQuality;
 
-	mLocalPrefs.GetPref( LOADSHADERS_KEY,        &m_nLatchedShader,                     0 );
+	mLocalPrefs.GetPref( LOADSHADERS_KEY, &m_nLatchedShader, 0 );
 	m_nShader = m_nLatchedShader;
 
 
-	mLocalPrefs.GetPref( FIXEDTEXSIZE_KEY,       &m_bFixedTextureSize,          FALSE );
-	mLocalPrefs.GetPref( FIXEDTEXSIZEWIDTH_KEY,  &m_nFixedTextureSizeWidth,     64 );
-	mLocalPrefs.GetPref( FIXEDTEXSIZEHEIGHT_KEY, &m_nFixedTextureSizeHeight,    64 );
+	mLocalPrefs.GetPref( FIXEDTEXSIZE_KEY, &m_bFixedTextureSize, FALSE );
+	mLocalPrefs.GetPref( FIXEDTEXSIZEWIDTH_KEY, &m_nFixedTextureSizeWidth, 64 );
+	mLocalPrefs.GetPref( FIXEDTEXSIZEHEIGHT_KEY, &m_nFixedTextureSizeHeight, 64 );
 
-	mLocalPrefs.GetPref( SHOWTEXDIRLIST_KEY,     &m_bShowTexDirList,             TRUE );
+	mLocalPrefs.GetPref( SHOWTEXDIRLIST_KEY, &m_bShowTexDirList, TRUE );
 
-	mLocalPrefs.GetPref( NOCLAMP_KEY,            &m_bNoClamp,                    FALSE );
-	mLocalPrefs.GetPref( SNAP_KEY,               &m_bSnap,                       TRUE );
-	mLocalPrefs.GetPref( USERINI_KEY,            &m_strUserPath,                 "" );
-	mLocalPrefs.GetPref( ROTATION_KEY,           &m_nRotation,                   45 );
-	mLocalPrefs.GetPref( CHASEMOUSE_KEY,         &m_bChaseMouse,                 TRUE );
-	mLocalPrefs.GetPref( MOUSEWHEELZOOM_KEY,     &m_bMousewheelZoom,             FALSE );
-	mLocalPrefs.GetPref( ENTITYSHOW_KEY,         &m_nEntityShowState,            ENTITY_SKINNED_BOXED );
+	mLocalPrefs.GetPref( NOCLAMP_KEY, &m_bNoClamp, FALSE );
+	mLocalPrefs.GetPref( SNAP_KEY, &m_bSnap, TRUE );
+	mLocalPrefs.GetPref( USERINI_KEY, &m_strUserPath, "" );
+	mLocalPrefs.GetPref( ROTATION_KEY, &m_nRotation, 45 );
+	mLocalPrefs.GetPref( CHASEMOUSE_KEY, &m_bChaseMouse, TRUE );
+	mLocalPrefs.GetPref( MOUSEWHEELZOOM_KEY, &m_bMousewheelZoom, FALSE );
+	mLocalPrefs.GetPref( ENTITYSHOW_KEY, &m_nEntityShowState, ENTITY_SKINNED_BOXED );
 
 	// this will probably need to be 75 or 100 for Q1.
-	mLocalPrefs.GetPref( TEXTURESCALE_KEY,       &m_nTextureScale,               50 );
+	mLocalPrefs.GetPref( TEXTURESCALE_KEY, &m_nTextureScale, 50 );
 
-	if ( ( g_pGameDescription->mGameFile == "hl.game" ) ) {
+	if ( ( g_pGameDescription->mGameFile == "hl.game" ) )
+	{
 		// No BSP monitoring in the default compiler tools for Half-life (yet)
-		mLocalPrefs.GetPref( WATCHBSP_KEY,           &m_bWatchBSP,                   FALSE );
+		mLocalPrefs.GetPref( WATCHBSP_KEY, &m_bWatchBSP, FALSE );
 
 		// Texture subset on by default (HL specific really, because of halflife.wad's size)
-		mLocalPrefs.GetPref( TEXTURE_KEY,            &m_bTextureWindow,              TRUE );
-	} else {
-		mLocalPrefs.GetPref( WATCHBSP_KEY,           &m_bWatchBSP,                   TRUE );
-		mLocalPrefs.GetPref( TEXTURE_KEY,            &m_bTextureWindow,              FALSE );
+		mLocalPrefs.GetPref( TEXTURE_KEY, &m_bTextureWindow, TRUE );
+	}
+	else
+	{
+		mLocalPrefs.GetPref( WATCHBSP_KEY, &m_bWatchBSP, TRUE );
+		mLocalPrefs.GetPref( TEXTURE_KEY, &m_bTextureWindow, FALSE );
 	}
 
 
-	mLocalPrefs.GetPref( TEXTURESCROLLBAR_KEY,   &m_bTextureScrollbar,           TRUE );
-	mLocalPrefs.GetPref( DISPLAYLISTS_KEY,       &m_bDisplayLists,               TRUE );
-	mLocalPrefs.GetPref( ANTIALIASEDLINES_KEY,   &m_bAntialiasedPointsAndLines,  FALSE );
-	mLocalPrefs.GetPref( SWITCHCLIP_KEY,         &m_bSwitchClip,                 TRUE );
-	mLocalPrefs.GetPref( SELWHOLEENTS_KEY,       &m_bSelectWholeEntities,        TRUE );
-	mLocalPrefs.GetPref( SHOWSHADERS_KEY,        &m_bShowShaders,                TRUE );
-	mLocalPrefs.GetPref( HIDEEMPTYDIRS_KEY,      &m_bHideEmptyDirs,              FALSE );
-	mLocalPrefs.GetPref( GLLIGHTING_KEY,         &m_bGLLighting,                 FALSE );
-	mLocalPrefs.GetPref( NOSTIPPLE_KEY,          &m_bNoStipple,                  FALSE );
-	mLocalPrefs.GetPref( UNDOLEVELS_KEY,         &m_nUndoLevels,                 30 );
-	mLocalPrefs.GetPref( VERTEXMODE_KEY,         &m_bVertexSplit,                TRUE );
-	mLocalPrefs.GetPref( RUNQ2_KEY,              &m_bRunQuake,                   RUNQ2_DEF );
-	mLocalPrefs.GetPref( LEAKSTOP_KEY,           &m_bLeakStop,                   TRUE );
-	mLocalPrefs.GetPref( DOSLEEP_KEY,            &m_bDoSleep,                    FALSE );
-	mLocalPrefs.GetPref( SELECTCURVES_KEY,       &m_bSelectCurves,               TRUE );
-	mLocalPrefs.GetPref( SELECTMODELS_KEY,       &m_bSelectModels,               TRUE );
-	mLocalPrefs.GetPref( SHADERLISTONLY_KEY,     &m_bTexturesShaderlistOnly,     FALSE );
-	mLocalPrefs.GetPref( DEFAULTTEXURESCALE_KEY, &m_fDefTextureScale,            g_pGameDescription->mTextureDefaultScale );
-	mLocalPrefs.GetPref( CAULKNEWBRUSHES_KEY, &m_bCaulkNewBrushes,               TRUE );
-	mLocalPrefs.GetPref( SUBDIVISIONS_KEY,       &m_nSubdivisions,               SUBDIVISIONS_DEF );
-	mLocalPrefs.GetPref( CLIPCAULK_KEY,          &m_bClipCaulk,                  FALSE );
-	mLocalPrefs.GetPref( HOLLOWCAULK_KEY,        &m_bMakeHollowCaulk,            TRUE );
-	mLocalPrefs.GetPref( SNAPTTOGRID_KEY,        &m_bSnapTToGrid,                FALSE );
-	mLocalPrefs.GetPref( TARGETFIX_KEY,          &m_bDoTargetFix,                TRUE );
-	mLocalPrefs.GetPref( WHEELINC_KEY,           &m_nWheelInc,                   64 );
-	mLocalPrefs.GetPref( PATCHBBOXSEL_KEY,       &m_bPatchBBoxSelect,            FALSE );
+	mLocalPrefs.GetPref( TEXTURESCROLLBAR_KEY, &m_bTextureScrollbar, TRUE );
+	mLocalPrefs.GetPref( DISPLAYLISTS_KEY, &m_bDisplayLists, TRUE );
+	mLocalPrefs.GetPref( ANTIALIASEDLINES_KEY, &m_bAntialiasedPointsAndLines, FALSE );
+	mLocalPrefs.GetPref( SWITCHCLIP_KEY, &m_bSwitchClip, TRUE );
+	mLocalPrefs.GetPref( SELWHOLEENTS_KEY, &m_bSelectWholeEntities, TRUE );
+	mLocalPrefs.GetPref( SHOWSHADERS_KEY, &m_bShowShaders, TRUE );
+	mLocalPrefs.GetPref( HIDEEMPTYDIRS_KEY, &m_bHideEmptyDirs, FALSE );
+	mLocalPrefs.GetPref( GLLIGHTING_KEY, &m_bGLLighting, FALSE );
+	mLocalPrefs.GetPref( NOSTIPPLE_KEY, &m_bNoStipple, FALSE );
+	mLocalPrefs.GetPref( UNDOLEVELS_KEY, &m_nUndoLevels, 30 );
+	mLocalPrefs.GetPref( VERTEXMODE_KEY, &m_bVertexSplit, TRUE );
+	mLocalPrefs.GetPref( RUNQ2_KEY, &m_bRunQuake, RUNQ2_DEF );
+	mLocalPrefs.GetPref( LEAKSTOP_KEY, &m_bLeakStop, TRUE );
+	mLocalPrefs.GetPref( DOSLEEP_KEY, &m_bDoSleep, FALSE );
+	mLocalPrefs.GetPref( SELECTCURVES_KEY, &m_bSelectCurves, TRUE );
+	mLocalPrefs.GetPref( SELECTMODELS_KEY, &m_bSelectModels, TRUE );
+	mLocalPrefs.GetPref( SHADERLISTONLY_KEY, &m_bTexturesShaderlistOnly, FALSE );
+	mLocalPrefs.GetPref( DEFAULTTEXURESCALE_KEY, &m_fDefTextureScale, g_pGameDescription->mTextureDefaultScale );
+	mLocalPrefs.GetPref( CAULKNEWBRUSHES_KEY, &m_bCaulkNewBrushes, TRUE );
+	mLocalPrefs.GetPref( SUBDIVISIONS_KEY, &m_nSubdivisions, SUBDIVISIONS_DEF );
+	mLocalPrefs.GetPref( CLIPCAULK_KEY, &m_bClipCaulk, FALSE );
+	mLocalPrefs.GetPref( HOLLOWCAULK_KEY, &m_bMakeHollowCaulk, TRUE );
+	mLocalPrefs.GetPref( SNAPTTOGRID_KEY, &m_bSnapTToGrid, FALSE );
+	mLocalPrefs.GetPref( TARGETFIX_KEY, &m_bDoTargetFix, TRUE );
+	mLocalPrefs.GetPref( WHEELINC_KEY, &m_nWheelInc, 64 );
+	mLocalPrefs.GetPref( PATCHBBOXSEL_KEY, &m_bPatchBBoxSelect, FALSE );
 
 	// window positioning
-	mLocalPrefs.GetPref( ENTITYSPLIT1_KEY,       &mWindowInfo.nEntitySplit1,     -1 );
-	mLocalPrefs.GetPref( ENTITYSPLIT2_KEY,       &mWindowInfo.nEntitySplit2,     -1 );
+	mLocalPrefs.GetPref( ENTITYSPLIT1_KEY, &mWindowInfo.nEntitySplit1, -1 );
+	mLocalPrefs.GetPref( ENTITYSPLIT2_KEY, &mWindowInfo.nEntitySplit2, -1 );
 
-	mLocalPrefs.GetPref( POSITIONX_KEY,          &mWindowInfo.position.x,        -1 );
-	mLocalPrefs.GetPref( POSITIONY_KEY,          &mWindowInfo.position.y,        -1 );
-	mLocalPrefs.GetPref( WIDTH_KEY,              &mWindowInfo.position.w,        -1 );
-	mLocalPrefs.GetPref( HEIGHT_KEY,             &mWindowInfo.position.h,        450 );
+	mLocalPrefs.GetPref( POSITIONX_KEY, &mWindowInfo.position.x, -1 );
+	mLocalPrefs.GetPref( POSITIONY_KEY, &mWindowInfo.position.y, -1 );
+	mLocalPrefs.GetPref( WIDTH_KEY, &mWindowInfo.position.w, -1 );
+	mLocalPrefs.GetPref( HEIGHT_KEY, &mWindowInfo.position.h, 450 );
 
 	const window_position_t default_window_pos = { 0, 0, 200, 200, };
 
-	mLocalPrefs.GetPref( ENTITYWND_KEY,          &mWindowInfo.posEntityWnd,      default_window_pos );
-	mLocalPrefs.GetPref( MAPINFOWND_KEY,         &mWindowInfo.posMapInfoWnd,     default_window_pos );
-	mLocalPrefs.GetPref( CAMWND_KEY,             &mWindowInfo.posCamWnd,         default_window_pos );
-	mLocalPrefs.GetPref( ZWND_KEY,               &mWindowInfo.posZWnd,           default_window_pos );
-	mLocalPrefs.GetPref( XYWND_KEY,              &mWindowInfo.posXYWnd,          default_window_pos );
-	mLocalPrefs.GetPref( YZWND_KEY,              &mWindowInfo.posYZWnd,          default_window_pos );
-	mLocalPrefs.GetPref( XZWND_KEY,              &mWindowInfo.posXZWnd,          default_window_pos );
-	mLocalPrefs.GetPref( PATCHWND_KEY,           &mWindowInfo.posPatchWnd,       default_window_pos );
-	mLocalPrefs.GetPref( SURFACEWND_KEY,         &mWindowInfo.posSurfaceWnd,     default_window_pos );
-	mLocalPrefs.GetPref( ENTITYINFOWND_KEY,      &mWindowInfo.posEntityInfoWnd,  default_window_pos );
+	mLocalPrefs.GetPref( ENTITYWND_KEY, &mWindowInfo.posEntityWnd, default_window_pos );
+	mLocalPrefs.GetPref( MAPINFOWND_KEY, &mWindowInfo.posMapInfoWnd, default_window_pos );
+	mLocalPrefs.GetPref( CAMWND_KEY, &mWindowInfo.posCamWnd, default_window_pos );
+	mLocalPrefs.GetPref( ZWND_KEY, &mWindowInfo.posZWnd, default_window_pos );
+	mLocalPrefs.GetPref( XYWND_KEY, &mWindowInfo.posXYWnd, default_window_pos );
+	mLocalPrefs.GetPref( YZWND_KEY, &mWindowInfo.posYZWnd, default_window_pos );
+	mLocalPrefs.GetPref( XZWND_KEY, &mWindowInfo.posXZWnd, default_window_pos );
+	mLocalPrefs.GetPref( PATCHWND_KEY, &mWindowInfo.posPatchWnd, default_window_pos );
+	mLocalPrefs.GetPref( SURFACEWND_KEY, &mWindowInfo.posSurfaceWnd, default_window_pos );
+	mLocalPrefs.GetPref( ENTITYINFOWND_KEY, &mWindowInfo.posEntityInfoWnd, default_window_pos );
 
-	mLocalPrefs.GetPref( ZWIDTH_KEY,             &mWindowInfo.nZWidth,           30 );
-	mLocalPrefs.GetPref( XYHEIGHT_KEY,           &mWindowInfo.nXYHeight,         300 );
-	mLocalPrefs.GetPref( XYWIDTH_KEY,            &mWindowInfo.nXYWidth,          300 );
-	mLocalPrefs.GetPref( CAMWIDTH_KEY,           &mWindowInfo.nCamWidth,         200 );
-	mLocalPrefs.GetPref( CAMHEIGHT_KEY,          &mWindowInfo.nCamHeight,        200 );
-	mLocalPrefs.GetPref( ZFLOATWIDTH_KEY,        &mWindowInfo.nZFloatWidth,      300 );
+	mLocalPrefs.GetPref( ZWIDTH_KEY, &mWindowInfo.nZWidth, 30 );
+	mLocalPrefs.GetPref( XYHEIGHT_KEY, &mWindowInfo.nXYHeight, 300 );
+	mLocalPrefs.GetPref( XYWIDTH_KEY, &mWindowInfo.nXYWidth, 300 );
+	mLocalPrefs.GetPref( CAMWIDTH_KEY, &mWindowInfo.nCamWidth, 200 );
+	mLocalPrefs.GetPref( CAMHEIGHT_KEY, &mWindowInfo.nCamHeight, 200 );
+	mLocalPrefs.GetPref( ZFLOATWIDTH_KEY, &mWindowInfo.nZFloatWidth, 300 );
 #ifdef _WIN32
-	mLocalPrefs.GetPref( STATE_KEY,              &mWindowInfo.nState,            SW_SHOW );
+	mLocalPrefs.GetPref( STATE_KEY, &mWindowInfo.nState, SW_SHOW );
 #endif
-	mLocalPrefs.GetPref( TEXDIRLISTWIDTH_KEY,        &mWindowInfo.nTextureDirectoryListWidth,      50 );
+	mLocalPrefs.GetPref( TEXDIRLISTWIDTH_KEY, &mWindowInfo.nTextureDirectoryListWidth, 50 );
 
 	// menu stuff
-	mLocalPrefs.GetPref( COUNT_KEY,              &m_nMRUCount,                   0 );
+	mLocalPrefs.GetPref( COUNT_KEY, &m_nMRUCount, 0 );
 	for ( i = 0; i < 4; i++ )
 	{
-		char buf[64];
+		char buf[ 64 ];
 		sprintf( buf, "%s%d", FILE_KEY, i );
-		mLocalPrefs.GetPref( buf,                  &m_strMRUFiles[i],              "" );
+		mLocalPrefs.GetPref( buf, &m_strMRUFiles[ i ], "" );
 	}
 
 	// some platform specific prefs
 #ifdef _WIN32
-	mLocalPrefs.GetPref( NATIVEGUI_KEY,          &m_bNativeGUI,                  TRUE );
-	mLocalPrefs.GetPref( STARTONPRIMMON_KEY,     &m_bStartOnPrimMon,             FALSE );
+	mLocalPrefs.GetPref( NATIVEGUI_KEY, &m_bNativeGUI, TRUE );
+	mLocalPrefs.GetPref( STARTONPRIMMON_KEY, &m_bStartOnPrimMon, FALSE );
 #endif
 
-	mLocalPrefs.GetPref( SI_TEXMENU_KEY,         &g_qeglobals.d_savedinfo.iTexMenu,                ID_VIEW_BILINEARMIPMAP );
-	mLocalPrefs.GetPref( SI_GAMMA_KEY,           &g_qeglobals.d_savedinfo.fGamma,                  1.0f );
-	mLocalPrefs.GetPref( SI_EXCLUDE_KEY,         &g_qeglobals.d_savedinfo.exclude,                 0 ); // nothing filtered by default
-	mLocalPrefs.GetPref( SI_INCLUDE_KEY,         &g_qeglobals.d_savedinfo.include,                 INCLUDE_NAMES | INCLUDE_COORDS | INCLUDE_ANGLES | INCLUDE_CAMERATINT );
-	mLocalPrefs.GetPref( SI_SHOWNAMES_KEY,       &g_qeglobals.d_savedinfo.show_names,              FALSE );
-	mLocalPrefs.GetPref( SI_SHOWCOORDS_KEY,      &g_qeglobals.d_savedinfo.show_coordinates,        TRUE );
-	mLocalPrefs.GetPref( SI_SHOWANGLES_KEY,      &g_qeglobals.d_savedinfo.show_angles,             TRUE );
-	mLocalPrefs.GetPref( SI_SHOWOUTLINES_KEY,    &g_qeglobals.d_savedinfo.show_outline,            FALSE );
-	mLocalPrefs.GetPref( SI_SHOWAXIS_KEY,        &g_qeglobals.d_savedinfo.show_axis,               TRUE );
-	mLocalPrefs.GetPref( SI_NOSELOUTLINES_KEY,   &g_qeglobals.d_savedinfo.bNoSelectedOutlines,     FALSE );
+	mLocalPrefs.GetPref( SI_TEXMENU_KEY, &g_qeglobals.d_savedinfo.iTexMenu, ID_VIEW_BILINEARMIPMAP );
+	mLocalPrefs.GetPref( SI_GAMMA_KEY, &g_qeglobals.d_savedinfo.fGamma, 1.0f );
+	mLocalPrefs.GetPref( SI_EXCLUDE_KEY, &g_qeglobals.d_savedinfo.exclude, 0 ); // nothing filtered by default
+	mLocalPrefs.GetPref( SI_INCLUDE_KEY, &g_qeglobals.d_savedinfo.include, INCLUDE_NAMES | INCLUDE_COORDS | INCLUDE_ANGLES | INCLUDE_CAMERATINT );
+	mLocalPrefs.GetPref( SI_SHOWNAMES_KEY, &g_qeglobals.d_savedinfo.show_names, FALSE );
+	mLocalPrefs.GetPref( SI_SHOWCOORDS_KEY, &g_qeglobals.d_savedinfo.show_coordinates, TRUE );
+	mLocalPrefs.GetPref( SI_SHOWANGLES_KEY, &g_qeglobals.d_savedinfo.show_angles, TRUE );
+	mLocalPrefs.GetPref( SI_SHOWOUTLINES_KEY, &g_qeglobals.d_savedinfo.show_outline, FALSE );
+	mLocalPrefs.GetPref( SI_SHOWAXIS_KEY, &g_qeglobals.d_savedinfo.show_axis, TRUE );
+	mLocalPrefs.GetPref( SI_NOSELOUTLINES_KEY, &g_qeglobals.d_savedinfo.bNoSelectedOutlines, FALSE );
 
-	mLocalPrefs.GetPref( SI_OUTLINESTYLE_KEY,   &g_qeglobals.d_savedinfo.iSelectedOutlinesStyle,  OUTLINE_ZBUF | OUTLINE_BSEL );
+	mLocalPrefs.GetPref( SI_OUTLINESTYLE_KEY, &g_qeglobals.d_savedinfo.iSelectedOutlinesStyle, OUTLINE_ZBUF | OUTLINE_BSEL );
 
 	LoadTexdefPref( &g_qeglobals.d_savedinfo.m_SIIncrement, SI_SURFACE_TEXDEF_KEY );
 	LoadTexdefPref( &g_qeglobals.d_savedinfo.m_PIIncrement, SI_PATCH_TEXDEF_KEY );
@@ -3172,19 +3376,20 @@ void PrefsDlg::LoadPrefs(){
 #endif
 
 
-	vec3_t vDefaultAxisColours[3] = {
+	vec3_t vDefaultAxisColours[ 3 ] = {
 		{0.f, 0.5f, 0.f},
 		{0.f, 0.f, 1.f},
 		{1.f, 0.f, 0.f},
 	};
 
-	for ( i = 0; i < 3; i++ ) {
-		char buf[64];
+	for ( i = 0; i < 3; i++ )
+	{
+		char buf[ 64 ];
 		sprintf( buf, "%s%d", SI_AXISCOLORS_KEY, i );
-		mLocalPrefs.GetPref( buf,   g_qeglobals.d_savedinfo.AxisColors[i], vDefaultAxisColours[i] );
+		mLocalPrefs.GetPref( buf, g_qeglobals.d_savedinfo.AxisColors[ i ], vDefaultAxisColours[ i ] );
 	}
 
-	vec3_t vDefaultColours[COLOR_LAST] = {
+	vec3_t vDefaultColours[ COLOR_LAST ] = {
 		{0.25f, 0.25f,  0.25f},
 		{1.f,   1.f,    1.f},
 		{0.75f, 0.75f,  0.75f},
@@ -3202,10 +3407,11 @@ void PrefsDlg::LoadPrefs(){
 		{0.f,   0.f,    0.f},
 	};
 
-	for ( i = 0; i < COLOR_LAST; i++ ) {
-		char buf[64];
+	for ( i = 0; i < COLOR_LAST; i++ )
+	{
+		char buf[ 64 ];
 		sprintf( buf, "%s%d", SI_COLORS_KEY, i );
-		mLocalPrefs.GetPref( buf,   g_qeglobals.d_savedinfo.colors[i], vDefaultColours[i] );
+		mLocalPrefs.GetPref( buf, g_qeglobals.d_savedinfo.colors[ i ], vDefaultColours[ i ] );
 	}
 
 	mLocalPrefs.GetPref( TEXTURECOMPRESSIONFORMAT_KEY, &m_nTextureCompressionFormat, 1 );
@@ -3229,15 +3435,18 @@ void PrefsDlg::LoadPrefs(){
 	UpdateATIHack();
 #endif
 
-	if ( mLocalPrefs.mbEmpty ) {
+	if ( mLocalPrefs.mbEmpty )
+	{
 		mLocalPrefs.mbEmpty = false;
 		Sys_Printf( "Saving local.pref with default pref values\n" );
 		SavePrefs();
 	}
 }
 
-void PrefsDlg::SavePrefs(){
-	if ( g_qeglobals.disable_ini ) {
+void PrefsDlg::SavePrefs()
+{
+	if ( g_qeglobals.disable_ini )
+	{
 		return;
 	}
 
@@ -3254,39 +3463,48 @@ void PrefsDlg::SavePrefs(){
 
 	// update the tree and save it
 	mLocalPrefs.UpdatePrefTree();
-	if ( !mLocalPrefs.WriteXMLFile( m_inipath->str ) ) {
+	if ( !mLocalPrefs.WriteXMLFile( m_inipath->str ) )
+	{
 		Sys_FPrintf( SYS_ERR, "Error occured while saving local prefs file '%s'\n", m_inipath->str );
 	}
 
-	if ( m_nMouse == 0 ) {
+	if ( m_nMouse == 0 )
+	{
 		m_nMouseButtons = 2;
 	}
-	else {
+	else
+	{
 		m_nMouseButtons = 3;
 	}
 
 }
 
-void PrefsDlg::PostModal( int code ){
-	if ( code == IDOK ) {
+void PrefsDlg::PostModal( int code )
+{
+	if ( code == IDOK )
+	{
 		SavePrefs();
 		// make sure the logfile is ok
 		Sys_LogFile();
 #ifdef ATIHACK_812
 		UpdateATIHack();
 #endif
-		if ( g_pParentWnd ) {
+		if ( g_pParentWnd )
+		{
 			g_pParentWnd->SetGridStatus();
 		}
 		Sys_UpdateWindows( W_ALL );
-		if ( m_nUndoLevels != 0 ) {
+		if ( m_nUndoLevels != 0 )
+		{
 			Undo_SetMaxSize( m_nUndoLevels );
 		}
 	}
 }
 
-void PrefsDlg::DoEditorSensitivity(){
-	if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_customeditor" ) ) ) ) {
+void PrefsDlg::DoEditorSensitivity()
+{
+	if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_customeditor" ) ) ) )
+	{
 		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "label_customeditor" ) ), TRUE );
 		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "entry_customeditor" ) ), TRUE );
 		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "button_customeditor" ) ), TRUE );
@@ -3299,12 +3517,15 @@ void PrefsDlg::DoEditorSensitivity(){
 	}
 }
 
-void PrefsDlg::DoSensitivity(){
+void PrefsDlg::DoSensitivity()
+{
 #if 0
 	// first, look at the project file version ... will monitoring work?
 	// project files now XML, guaranteed to be at least version 2
-	if ( 0 ) { //IntForKey( g_qeglobals.d_project_entity, "version" ) < 2)
-		if ( m_bWarn ) {
+	if ( 0 )
+	{ //IntForKey( g_qeglobals.d_project_entity, "version" ) < 2)
+		if ( m_bWarn )
+		{
 			Str Msg;
 			Msg = "The current project file (";
 			Msg += g_PrefsDlg.m_strLastProject;
@@ -3323,607 +3544,672 @@ void PrefsDlg::DoSensitivity(){
 	else
 	{
 #endif
-//    m_bWarn = true;
+		//    m_bWarn = true;
 
-	gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_leakstop" ) ), TRUE );
-	gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_monitorbsp" ) ), TRUE );
-	gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ), TRUE );
-	gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), TRUE );
+		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_leakstop" ) ), TRUE );
+		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_monitorbsp" ) ), TRUE );
+		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ), TRUE );
+		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), TRUE );
 
-	if ( !gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_monitorbsp" ) ) ) ) {
-		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_leakstop" ) ), FALSE );
-		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ), FALSE );
-		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), FALSE );
-	}
-	else if ( !gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ) ) ) {
-		gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), FALSE );
-	}
+		if ( !gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_monitorbsp" ) ) ) )
+		{
+			gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_leakstop" ) ), FALSE );
+			gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ), FALSE );
+			gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), FALSE );
+		}
+		else if ( !gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( g_object_get_data( G_OBJECT( m_pWidget ), "check_runengine" ) ) ) )
+		{
+			gtk_widget_set_sensitive( GTK_WIDGET( g_object_get_data( G_OBJECT( m_pWidget ), "check_sleep" ) ), FALSE );
+		}
 }
 
-/*
-   ============================================================
-   CGameInstall
-   ============================================================
- */
+	/*
+	   ============================================================
+	   CGameInstall
+	   ============================================================
+	 */
 
-CGameInstall::CGameInstall() {
-	memset( m_availGames, 0, sizeof( m_availGames ) );
-}
+	CGameInstall::CGameInstall()
+	{
+		memset( m_availGames, 0, sizeof( m_availGames ) );
+	}
 
-void CGameInstall::OnBtnBrowseEngine( GtkWidget *widget, gpointer data ) {
-	Sys_Printf( "OnBtnBrowseEngine\n" );
+	void CGameInstall::OnBtnBrowseEngine( GtkWidget *widget, gpointer data )
+	{
+		Sys_Printf( "OnBtnBrowseEngine\n" );
 
-	CGameInstall* i = static_cast<CGameInstall*>( data );
-	char *dir = dir_dialog( i->m_pWidget, _( "Select game directory" ), NULL );
+		CGameInstall* i = static_cast< CGameInstall* >( data );
+		char *dir = dir_dialog( i->m_pWidget, _( "Select game directory" ), NULL );
 
-	i->UpdateData( TRUE );
+		i->UpdateData( TRUE );
 
-	if ( dir != NULL ) {
-		i->m_strEngine = dir;
+		if ( dir != NULL )
+		{
+			i->m_strEngine = dir;
+			i->UpdateData( FALSE );
+			g_free( dir );
+		}
+	}
+
+	void CGameInstall::OnBtnBrowseExecutables( GtkWidget *widget, gpointer data )
+	{
+		Sys_Printf( "OnBtnBrowseExecutables\n" );
+
+		CGameInstall* i = static_cast< CGameInstall* >( data );
+		char *dir = dir_dialog( i->m_pWidget, _( "Select executables directory" ), NULL );
+
+		i->UpdateData( TRUE );
+
+		if ( dir != NULL )
+		{
+			i->m_strExecutables = dir;
+			i->UpdateData( FALSE );
+			g_free( dir );
+		}
+	}
+
+	void CGameInstall::OnGameSelectChanged( GtkWidget *widget, gpointer data )
+	{
+		Sys_Printf( "OnGameSelectChanged\n" );
+
+		CGameInstall* i = static_cast< CGameInstall* >( data );
+		i->UpdateData( TRUE );
+		gchar * str = gtk_combo_box_text_get_active_text( GTK_COMBO_BOX_TEXT( widget ) );
+		i->m_strName = str;
+		g_free( str );
 		i->UpdateData( FALSE );
-		g_free( dir );
+
+		GtkWidget *label = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_label" ) );
+		GtkWidget *entry = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_entry" ) );
+		GtkWidget *button = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_button" ) );
+
+		int game_id = i->m_availGames[ i->m_nComboSelect ];
+		if ( game_id == GAME_Q2 || game_id == GAME_QUETOO )
+		{
+			gtk_widget_show( label );
+			gtk_widget_show( entry );
+			gtk_widget_show( button );
+		}
+		else
+		{
+			gtk_widget_hide( label );
+			gtk_widget_hide( entry );
+			gtk_widget_hide( button );
+		}
 	}
-}
 
-void CGameInstall::OnBtnBrowseExecutables( GtkWidget *widget, gpointer data ) {
-	Sys_Printf( "OnBtnBrowseExecutables\n" );
+	void CGameInstall::BuildDialog()
+	{
+		GtkWidget *dlg, *vbox1, *frame, *table, *button, *text, *game_select_combo, *entry, *hbox;
 
-	CGameInstall* i = static_cast<CGameInstall*>( data );
-	char *dir = dir_dialog( i->m_pWidget, _( "Select executables directory" ), NULL );
+		dlg = m_pWidget;
+		gtk_window_set_title( GTK_WINDOW( dlg ), _( "Configure profiles" ) );
 
-	i->UpdateData( TRUE );
+		vbox1 = gtk_vbox_new( FALSE, 5 );
+		gtk_container_set_border_width( GTK_CONTAINER( vbox1 ), 5 );
+		gtk_container_add( GTK_CONTAINER( dlg ), vbox1 );
+		gtk_widget_show( vbox1 );
 
-	if ( dir != NULL ) {
-		i->m_strExecutables = dir;
-		i->UpdateData( FALSE );
-		g_free( dir );
-	}
-}
+		frame = gtk_frame_new( _( "Configure a profile" ) );
+		gtk_box_pack_start( GTK_BOX( vbox1 ), frame, TRUE, TRUE, 0 );
+		gtk_widget_show( frame );
 
-void CGameInstall::OnGameSelectChanged( GtkWidget *widget, gpointer data ) {
-	Sys_Printf( "OnGameSelectChanged\n" );
+		table = gtk_table_new( 5, 2, FALSE );
+		gtk_table_set_row_spacings( GTK_TABLE( table ), 5 );
+		gtk_table_set_col_spacings( GTK_TABLE( table ), 5 );
+		gtk_container_set_border_width( GTK_CONTAINER( table ), 5 );
+		gtk_container_add( GTK_CONTAINER( frame ), table );
+		gtk_widget_show( table );
 
-	CGameInstall* i = static_cast<CGameInstall*>( data );
-	i->UpdateData( TRUE );
-	gchar * str = gtk_combo_box_text_get_active_text( GTK_COMBO_BOX_TEXT( widget ) );
-	i->m_strName = str;
-	g_free( str );
-	i->UpdateData( FALSE );
+		game_select_combo = gtk_combo_box_text_new();
+		gtk_table_attach( GTK_TABLE( table ), game_select_combo, 1, 2, 0, 1,
+			( GtkAttachOptions ) ( GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( game_select_combo );
 
-	GtkWidget *label = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_label" ) );
-	GtkWidget *entry = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_entry" ) );
-	GtkWidget *button = GTK_WIDGET( g_object_get_data( G_OBJECT( i->m_pWidget ), "executable_button" ) );
+		int iGame = 0;
+		while ( m_availGames[ iGame ] != GAME_NONE )
+		{
+			switch ( m_availGames[ iGame ] )
+			{
+			case GAME_Q1:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake" ) );
+				break;
+			case GAME_LIFEENGINE:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "lifeEngine" ) );
+				break;
+			case GAME_Q2:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake II" ) );
+				break;
+			case GAME_Q3:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake III Arena and mods" ) );
+				break;
+			case GAME_URT:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Urban Terror (standalone)" ) );
+				break;
+			case GAME_UFOAI:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "UFO: Alien Invasion" ) );
+				break;
+			case GAME_QUETOO:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quetoo" ) );
+				break;
+			case GAME_WARSOW:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Warsow" ) );
+				break;
+			case GAME_NEXUIZ:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Nexuiz" ) );
+				break;
+			case GAME_TREMULOUS:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Tremulous" ) );
+				break;
+			case GAME_JA:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Jedi Academy and mods" ) );
+				break;
+			case GAME_REACTION:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Reaction Quake 3" ) );
+				break;
+			case GAME_ET:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Wolfenstein: Enemy Territory" ) );
+				break;
+			case GAME_QL:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake Live" ) );
+				break;
+			case GAME_STVEF:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Star Trek - Voyager: Elite Force" ) );
+				break;
+			case GAME_WOLF:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Return To Castle Wolfenstein" ) );
+				break;
+			case GAME_UNVANQUISHED:
+				gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Unvanquished" ) );
+				break;
+			}
+			iGame++;
+		}
+		AddDialogData( game_select_combo, &m_nComboSelect, DLG_COMBO_BOX_INT );
+		g_signal_connect( G_OBJECT( game_select_combo ), "changed", G_CALLBACK( OnGameSelectChanged ), this );
 
-	int game_id = i->m_availGames[ i->m_nComboSelect ];
-	if ( game_id == GAME_Q2 || game_id == GAME_QUETOO ) {
-		gtk_widget_show( label );
+		text = gtk_label_new( _( "Name:" ) );
+		gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
+		gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 1, 2,
+			( GtkAttachOptions ) ( GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( text );
+
+		entry = gtk_entry_new();
+		gtk_table_attach( GTK_TABLE( table ), entry, 1, 2, 1, 2,
+			( GtkAttachOptions ) ( GTK_EXPAND | GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
 		gtk_widget_show( entry );
+		AddDialogData( entry, &m_strName, DLG_ENTRY_TEXT );
+
+		text = gtk_label_new( _( "Game directory:" ) );
+		gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
+		gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 2, 3,
+			( GtkAttachOptions ) ( GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( text );
+
+		hbox = gtk_hbox_new( FALSE, 5 );
+		gtk_table_attach( GTK_TABLE( table ), hbox, 1, 2, 2, 3,
+			( GtkAttachOptions ) ( GTK_EXPAND | GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( hbox );
+
+		entry = gtk_entry_new();
+		gtk_box_pack_start( GTK_BOX( hbox ), entry, TRUE, TRUE, 0 );
+		gtk_widget_show( entry );
+		AddDialogData( entry, &m_strEngine, DLG_ENTRY_TEXT );
+
+		button = gtk_button_new_with_label( _( "..." ) );
+		g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseEngine ), this );
+		gtk_box_pack_start( GTK_BOX( hbox ), button, FALSE, FALSE, 0 );
 		gtk_widget_show( button );
-	} else {
-		gtk_widget_hide( label );
-		gtk_widget_hide( entry );
-		gtk_widget_hide( button );
+
+		text = gtk_label_new( _( "Engine binaries directory:" ) );
+		gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
+		gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 3, 4,
+			( GtkAttachOptions ) ( GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( text );
+		g_object_set_data( G_OBJECT( dlg ), "executable_label", text );
+
+		hbox = gtk_hbox_new( FALSE, 5 );
+		gtk_table_attach( GTK_TABLE( table ), hbox, 1, 2, 3, 4,
+			( GtkAttachOptions ) ( GTK_EXPAND | GTK_FILL ),
+						  ( GtkAttachOptions ) ( 0 ), 0, 0 );
+		gtk_widget_show( hbox );
+
+		entry = gtk_entry_new();
+		gtk_box_pack_start( GTK_BOX( hbox ), entry, TRUE, TRUE, 0 );
+		gtk_widget_show( entry );
+		AddDialogData( entry, &m_strExecutables, DLG_ENTRY_TEXT );
+		g_object_set_data( G_OBJECT( dlg ), "executable_entry", entry );
+
+		button = gtk_button_new_with_label( _( "..." ) );
+		g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseExecutables ), this );
+		gtk_box_pack_start( GTK_BOX( hbox ), button, FALSE, FALSE, 0 );
+		gtk_widget_show( button );
+		g_object_set_data( G_OBJECT( dlg ), "executable_button", button );
+
+		hbox = gtk_hbox_new( FALSE, 0 );
+		gtk_box_pack_start( GTK_BOX( vbox1 ), hbox, FALSE, FALSE, 0 );
+		gtk_widget_show( hbox );
+
+		button = gtk_button_new_with_label( _( "OK" ) );
+		gtk_box_pack_start( GTK_BOX( hbox ), button, TRUE, TRUE, 0 );
+		gtk_widget_show( button );
+		AddModalButton( button, IDOK );
+
+		button = gtk_button_new_with_label( _( "Cancel" ) );
+		gtk_box_pack_start( GTK_BOX( hbox ), button, TRUE, TRUE, 0 );
+		gtk_widget_show( button );
+		AddModalButton( button, IDCANCEL );
+
+		// triggers the callback - sets the game name, shows/hide extra settings depending on project
+		gtk_combo_box_set_active( GTK_COMBO_BOX( game_select_combo ), 0 );
 	}
-}
 
-void CGameInstall::BuildDialog() {
-	GtkWidget *dlg, *vbox1, *frame, *table, *button, *text, *game_select_combo, *entry, *hbox;
+	void CGameInstall::Run()
+	{
+		ScanGames();
+		if ( m_availGames[ 0 ] == GAME_NONE )
+		{
+			return;
+		}
+		if ( DoModal() == IDCANCEL )
+		{
+			Sys_Printf( "game dialog cancelled\n" );
+			return;
+		}
+		Sys_Printf( "combo: %d name: %s engine: %s mod: %s\n", m_nComboSelect, m_strName.GetBuffer(), m_strEngine.GetBuffer(), m_strMod.GetBuffer() );
 
-	dlg = m_pWidget;
-	gtk_window_set_title( GTK_WINDOW( dlg ), _( "Configure games" ) );
+		// Resolve the game pack and .game file
+		Str gamePack, gameFilePath = g_strAppPath.GetBuffer();
+		gameFilePath += "games/";
+		if ( CheckFile( gameFilePath ) != PATH_DIRECTORY )
+		{
+			radCreateDirectory( gameFilePath );
+		}
 
-	vbox1 = gtk_vbox_new( FALSE, 5 );
-	gtk_container_set_border_width( GTK_CONTAINER( vbox1 ), 5 );
-	gtk_container_add( GTK_CONTAINER( dlg ), vbox1 );
-	gtk_widget_show( vbox1 );
-
-	frame = gtk_frame_new( _( "Configure a game" ) );
-	gtk_box_pack_start( GTK_BOX( vbox1 ), frame, TRUE, TRUE, 0 );
-	gtk_widget_show( frame );
-
-	table = gtk_table_new( 5, 2, FALSE );
-	gtk_table_set_row_spacings( GTK_TABLE( table ), 5 );
-	gtk_table_set_col_spacings( GTK_TABLE( table ), 5 );
-	gtk_container_set_border_width( GTK_CONTAINER( table ), 5 );
-	gtk_container_add( GTK_CONTAINER( frame ), table );
-	gtk_widget_show( table );
-
-	game_select_combo = gtk_combo_box_text_new();
-	gtk_table_attach( GTK_TABLE( table ), game_select_combo, 1, 2, 0, 1,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( game_select_combo );
-
-	int iGame = 0;
-	while ( m_availGames[ iGame ] != GAME_NONE ) {
-		switch ( m_availGames[ iGame ] ) {
+		switch ( m_availGames[ m_nComboSelect ] )
+		{
 		case GAME_Q1:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake" ) );
+			gamePack = Q1_PACK;
+			gameFilePath += Q1_GAME;
+			break;
+		case GAME_LIFEENGINE:
+			gamePack = LE_PACK;
+			gameFilePath += LE_ENGINE;
 			break;
 		case GAME_Q2:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake II" ) );
+			gamePack = Q2_PACK;
+			gameFilePath += Q2_GAME;
 			break;
 		case GAME_Q3:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake III Arena and mods" ) );
+			gamePack = Q3_PACK;
+			gameFilePath += Q3_GAME;
 			break;
 		case GAME_URT:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Urban Terror (standalone)" ) );
+			gamePack = URT_PACK;
+			gameFilePath += URT_GAME;
 			break;
 		case GAME_UFOAI:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "UFO: Alien Invasion" ) );
+			gamePack = UFOAI_PACK;
+			gameFilePath += UFOAI_GAME;
 			break;
 		case GAME_QUETOO:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quetoo" ) );
+			gamePack = QUETOO_PACK;
+			gameFilePath += QUETOO_GAME;
 			break;
 		case GAME_WARSOW:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Warsow" ) );
+			gameFilePath += WARSOW_GAME;
+			gamePack = WARSOW_PACK;
 			break;
 		case GAME_NEXUIZ:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Nexuiz" ) );
+			gamePack = NEXUIZ_PACK;
+			gameFilePath += NEXUIZ_GAME;
 			break;
 		case GAME_TREMULOUS:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Tremulous" ) );
+			gamePack = TREMULOUS_PACK;
+			gameFilePath += TREMULOUS_GAME;
 			break;
 		case GAME_JA:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Jedi Academy and mods" ) );
+			gamePack = JA_PACK;
+			gameFilePath += JA_GAME;
 			break;
 		case GAME_REACTION:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Reaction Quake 3" ) );
+			gamePack = REACTION_PACK;
+			gameFilePath += REACTION_GAME;
 			break;
 		case GAME_ET:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Wolfenstein: Enemy Territory" ) );
+			gamePack = ET_PACK;
+			gameFilePath += ET_GAME;
 			break;
 		case GAME_QL:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Quake Live" ) );
+			gamePack = QL_PACK;
+			gameFilePath += QL_GAME;
 			break;
 		case GAME_STVEF:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Star Trek - Voyager: Elite Force" ) );
+			gamePack = STVEF_PACK;
+			gameFilePath += STVEF_GAME;
 			break;
 		case GAME_WOLF:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Return To Castle Wolfenstein" ) );
+			gamePack = WOLF_PACK;
+			gameFilePath += WOLF_GAME;
 			break;
 		case GAME_UNVANQUISHED:
-			gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( game_select_combo ), _( "Unvanquished" ) );
+			gamePack = UNVANQUISHED_PACK;
+			gameFilePath += UNVANQUISHED_GAME;
+			break;
+		default:
+			Error( "Invalid game selected: %d", m_availGames[ m_nComboSelect ] );
+		}
+
+		Str gameInstallPath = g_strAppPath.GetBuffer();
+		gameInstallPath += "installs/";
+		gameInstallPath += gamePack;
+		gameInstallPath += "/install/";
+		Sys_Printf( "Installing game pack from: %s\n", gameInstallPath.GetBuffer() );
+
+		// First copy the install directory into the game engine. We do this
+		// for all games, even if they don't provide an "install" folder.
+		radCopyTree( gameInstallPath.GetBuffer(), m_strEngine.GetBuffer() );
+
+		Sys_Printf( "Writing game file: %s\n", gameFilePath.GetBuffer() );
+
+		FILE * fg = fopen( gameFilePath.GetBuffer(), "w" );
+		if ( fg == NULL )
+		{
+			Error( "Failed to open %s for writing\n", gameFilePath.GetBuffer() );
+		}
+
+		// Running Windows, crashing here?
+		// Make sure that libintl.h is not redefining fprintf to some broken BS!
+		// - TTimo
+		fprintf( fg, "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"yes\"?>\n<game\n" );
+		fprintf( fg, "  name=\"%s\"\n", m_strName.GetBuffer() );
+		fprintf( fg, "  " ENGINEPATH_ATTRIBUTE "=\"%s\"\n", m_strEngine.GetBuffer() );
+		fprintf( fg, "  " TOOLS_ATTRIBUTE "=\"%sinstalls/%s/game\"\n", g_strAppPath.GetBuffer(), gamePack.GetBuffer() );
+
+		if ( m_strExecutables.GetLength() > 0 )
+		{
+			fprintf( fg, "  " EXECUTABLES_ATTRIBUTE "=\"%s\"\n", m_strExecutables.GetBuffer() );
+		}
+
+		switch ( m_availGames[ m_nComboSelect ] )
+		{
+		case GAME_Q1: {
+			fprintf( fg, "  idtech2=\"true\"\n" );
+			fprintf( fg, "  prefix=\".quake1\"\n" );
+			fprintf( fg, "  basegame=\"id1\"\n" );
+			fprintf( fg, "  no_patch=\"true\"\n" );
+			fprintf( fg, "  default_scale=\"1.0\"\n" );
+
 			break;
 		}
-		iGame++;
-	}
-	AddDialogData( game_select_combo, &m_nComboSelect, DLG_COMBO_BOX_INT );
-	g_signal_connect( G_OBJECT( game_select_combo ), "changed", G_CALLBACK( OnGameSelectChanged ), this );
+		case GAME_Q2: {
+			fprintf( fg, "  idtech2=\"true\"\n" );
+			fprintf( fg, "  prefix=\".quake2\"\n" );
+			fprintf( fg, "  basegame=\"baseq2\"\n" );
+			fprintf( fg, "  no_patch=\"true\"\n" );
+			fprintf( fg, "  default_scale=\"1.0\"\n" );
 
-	text = gtk_label_new( _( "Name:" ) );
-	gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
-	gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 1, 2,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( text );
-
-	entry = gtk_entry_new();
-	gtk_table_attach( GTK_TABLE( table ), entry, 1, 2, 1, 2,
-					  (GtkAttachOptions) ( GTK_EXPAND | GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( entry );
-	AddDialogData( entry, &m_strName, DLG_ENTRY_TEXT );
-
-	text = gtk_label_new( _( "Game directory:" ) );
-	gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
-	gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 2, 3,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( text );
-
-	hbox = gtk_hbox_new( FALSE, 5 );
-	gtk_table_attach( GTK_TABLE( table ), hbox, 1, 2, 2, 3,
-					  (GtkAttachOptions) ( GTK_EXPAND | GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( hbox );
-
-	entry = gtk_entry_new();
-	gtk_box_pack_start( GTK_BOX( hbox ), entry, TRUE, TRUE, 0 );
-	gtk_widget_show( entry );
-	AddDialogData( entry, &m_strEngine, DLG_ENTRY_TEXT );
-
-	button = gtk_button_new_with_label( _( "..." ) );
-	g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseEngine ), this );
-	gtk_box_pack_start( GTK_BOX( hbox ), button, FALSE, FALSE, 0 );
-	gtk_widget_show( button );
-
-	text = gtk_label_new( _( "Engine binaries directory:" ) );
-	gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
-	gtk_table_attach( GTK_TABLE( table ), text, 0, 1, 3, 4,
-					  (GtkAttachOptions) ( GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( text );
-	g_object_set_data( G_OBJECT( dlg ), "executable_label", text );
-
-	hbox = gtk_hbox_new( FALSE, 5 );
-	gtk_table_attach( GTK_TABLE( table ), hbox, 1, 2, 3, 4,
-					  (GtkAttachOptions) ( GTK_EXPAND | GTK_FILL ),
-					  (GtkAttachOptions) ( 0 ), 0, 0 );
-	gtk_widget_show( hbox );
-
-	entry = gtk_entry_new();
-	gtk_box_pack_start( GTK_BOX( hbox ), entry, TRUE, TRUE, 0 );
-	gtk_widget_show( entry );
-	AddDialogData( entry, &m_strExecutables, DLG_ENTRY_TEXT );
-	g_object_set_data( G_OBJECT( dlg ), "executable_entry", entry );
-
-	button = gtk_button_new_with_label( _( "..." ) );
-	g_signal_connect( G_OBJECT( button ), "clicked", G_CALLBACK( OnBtnBrowseExecutables ), this );
-	gtk_box_pack_start( GTK_BOX( hbox ), button, FALSE, FALSE, 0 );
-	gtk_widget_show( button );
-	g_object_set_data( G_OBJECT( dlg ), "executable_button", button );
-
-	hbox = gtk_hbox_new( FALSE, 0 );
-	gtk_box_pack_start( GTK_BOX( vbox1 ), hbox, FALSE, FALSE, 0 );
-	gtk_widget_show( hbox );
-
-	button = gtk_button_new_with_label( _( "OK" ) );
-	gtk_box_pack_start( GTK_BOX( hbox ), button, TRUE, TRUE, 0 );
-	gtk_widget_show( button );
-	AddModalButton( button, IDOK );
-
-	button = gtk_button_new_with_label( _( "Cancel" ) );
-	gtk_box_pack_start( GTK_BOX( hbox ), button, TRUE, TRUE, 0 );
-	gtk_widget_show( button );
-	AddModalButton( button, IDCANCEL );
-
-	// triggers the callback - sets the game name, shows/hide extra settings depending on project
-	gtk_combo_box_set_active( GTK_COMBO_BOX( game_select_combo ), 0 );
-}
-
-void CGameInstall::Run() {
-	ScanGames();
-	if ( m_availGames[0] == GAME_NONE ) {
-		return;
-	}
-	if ( DoModal() == IDCANCEL ) {
-		Sys_Printf( "game dialog cancelled\n" );
-		return;
-	}
-	Sys_Printf( "combo: %d name: %s engine: %s mod: %s\n", m_nComboSelect, m_strName.GetBuffer(), m_strEngine.GetBuffer(), m_strMod.GetBuffer() );
-
-	// Resolve the game pack and .game file
-	Str gamePack, gameFilePath = g_strAppPath.GetBuffer();
-	gameFilePath += "games/";
-	if ( CheckFile( gameFilePath ) != PATH_DIRECTORY ) {
-		radCreateDirectory( gameFilePath );
-	}
-
-	switch ( m_availGames[ m_nComboSelect ] ) {
-	case GAME_Q1:
-		gamePack = Q1_PACK;
-		gameFilePath += Q1_GAME;
-		break;
-	case GAME_Q2:
-		gamePack = Q2_PACK;
-		gameFilePath += Q2_GAME;
-		break;
-	case GAME_Q3:
-		gamePack = Q3_PACK;
-		gameFilePath += Q3_GAME;
-		break;
-	case GAME_URT:
-		gamePack = URT_PACK;
-		gameFilePath += URT_GAME;
-		break;
-	case GAME_UFOAI:
-		gamePack = UFOAI_PACK;
-		gameFilePath += UFOAI_GAME;
-		break;
-	case GAME_QUETOO:
-		gamePack = QUETOO_PACK;
-		gameFilePath += QUETOO_GAME;
-		break;
-	case GAME_WARSOW:
-		gameFilePath += WARSOW_GAME;
-		gamePack = WARSOW_PACK;
-		break;
-	case GAME_NEXUIZ:
-		gamePack = NEXUIZ_PACK;
-		gameFilePath += NEXUIZ_GAME;
-		break;
-	case GAME_TREMULOUS:
-		gamePack = TREMULOUS_PACK;
-		gameFilePath += TREMULOUS_GAME;
-		break;
-	case GAME_JA:
-		gamePack = JA_PACK;
-		gameFilePath += JA_GAME;
-		break;
-	case GAME_REACTION:
-		gamePack = REACTION_PACK;
-		gameFilePath += REACTION_GAME;
-		break;
-	case GAME_ET:
-		gamePack = ET_PACK;
-		gameFilePath += ET_GAME;
-		break;
-	case GAME_QL:
-		gamePack = QL_PACK;
-		gameFilePath += QL_GAME;
-		break;
-	case GAME_STVEF:
-		gamePack = STVEF_PACK;
-		gameFilePath += STVEF_GAME;
-		break;
-	case GAME_WOLF:
-		gamePack = WOLF_PACK;
-		gameFilePath += WOLF_GAME;
-		break;
-	case GAME_UNVANQUISHED:
-		gamePack = UNVANQUISHED_PACK;
-		gameFilePath += UNVANQUISHED_GAME;
-		break;
-	default:
-		Error( "Invalid game selected: %d", m_availGames[ m_nComboSelect ] );
-	}
-
-	Str gameInstallPath = g_strAppPath.GetBuffer();
-	gameInstallPath += "installs/";
-	gameInstallPath += gamePack;
-	gameInstallPath += "/install/";
-	Sys_Printf( "Installing game pack from: %s\n", gameInstallPath.GetBuffer() );
-
-	// First copy the install directory into the game engine. We do this
-	// for all games, even if they don't provide an "install" folder.
-	radCopyTree( gameInstallPath.GetBuffer(), m_strEngine.GetBuffer() );
-
-	Sys_Printf( "Writing game file: %s\n", gameFilePath.GetBuffer() );
-
-	FILE * fg = fopen( gameFilePath.GetBuffer(), "w" );
-	if ( fg == NULL ) {
-		Error( "Failed to open %s for writing\n", gameFilePath.GetBuffer() );
-	}
-
-	// Running Windows, crashing here?
-	// Make sure that libintl.h is not redefining fprintf to some broken BS!
-	// - TTimo
-	fprintf( fg, "<?xml version=\"1.0\" encoding=\"iso-8859-1\" standalone=\"yes\"?>\n<game\n" );
-	fprintf( fg, "  name=\"%s\"\n", m_strName.GetBuffer() );
-	fprintf( fg, "  " ENGINEPATH_ATTRIBUTE "=\"%s\"\n", m_strEngine.GetBuffer() );
-	fprintf( fg, "  " TOOLS_ATTRIBUTE "=\"%sinstalls/%s/game\"\n", g_strAppPath.GetBuffer(), gamePack.GetBuffer() );
-
-	if ( m_strExecutables.GetLength() > 0 ) {
-		fprintf( fg, "  " EXECUTABLES_ATTRIBUTE "=\"%s\"\n", m_strExecutables.GetBuffer() );
-	}
-
-	switch ( m_availGames[ m_nComboSelect ] ) {
-	case GAME_Q1: {
-		fprintf( fg, "  idtech2=\"true\"\n" );
-		fprintf( fg, "  prefix=\".quake1\"\n" );
-		fprintf( fg, "  basegame=\"id1\"\n" );
-		fprintf( fg, "  no_patch=\"true\"\n" );
-		fprintf( fg, "  default_scale=\"1.0\"\n" );
-
-		break;
-	}
-	case GAME_Q2: {
-		fprintf( fg, "  idtech2=\"true\"\n" );
-		fprintf( fg, "  prefix=\".quake2\"\n" );
-		fprintf( fg, "  basegame=\"baseq2\"\n" );
-		fprintf( fg, "  no_patch=\"true\"\n" );
-		fprintf( fg, "  default_scale=\"1.0\"\n" );
-
-		break;
-	}
-	case GAME_Q3: {
-		fprintf( fg, "  prefix=\".q3a\"\n" );
-		fprintf( fg, "  basegame=\"baseq3\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/baseq3/scripts/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "baseq3/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			break;
 		}
-		break;
-	}
-	case GAME_URT: {
-		fprintf( fg, "  prefix=\".q3a\"\n" );
-		fprintf( fg, "  basegame=\"q3ut4\"\n" );
-		break;
-	}
-	case GAME_UFOAI: {
-		fprintf( fg, "  prefix=\".ufoai\"\n" );
-		fprintf( fg, "  basegame=\"base\"\n" );
-		fprintf( fg, "  no_patch=\"true\"\n" );
-		break;
-	}
-	case GAME_QUETOO: {
+		case GAME_Q3: {
+			fprintf( fg, "  prefix=\".q3a\"\n" );
+			fprintf( fg, "  basegame=\"baseq3\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/baseq3/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "baseq3/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
+		}
+		case GAME_LIFEENGINE: {
+			fprintf( fg, "  prefix=\".le\"\n" );
+			fprintf( fg, "  basegame=\"./\"\n" );
+			fprintf( fg, "  no_patch=\"true\"\n" );
+			fprintf( fg, "  default_scale=\"1.0\"\n" );
+			break;
+		}
+		case GAME_URT: {
+			fprintf( fg, "  prefix=\".q3a\"\n" );
+			fprintf( fg, "  basegame=\"q3ut4\"\n" );
+			break;
+		}
+		case GAME_UFOAI: {
+			fprintf( fg, "  prefix=\".ufoai\"\n" );
+			fprintf( fg, "  basegame=\"base\"\n" );
+			fprintf( fg, "  no_patch=\"true\"\n" );
+			break;
+		}
+		case GAME_QUETOO: {
 #if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
-		fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"quetoo\"\n" );
-		fprintf( fg, "  " PREFIX_ATTRIBUTE "=\".quetoo\"\n" );
+			fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"quetoo\"\n" );
+			fprintf( fg, "  " PREFIX_ATTRIBUTE "=\".quetoo\"\n" );
 #elif _WIN32
-		fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"quetoo.exe\"\n" );
-		fprintf( fg, "  " PREFIX_ATTRIBUTE "=\"Quetoo\"\n" );
+			fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"quetoo.exe\"\n" );
+			fprintf( fg, "  " PREFIX_ATTRIBUTE "=\"Quetoo\"\n" );
 #endif
-		fprintf( fg, "  idtech2=\"true\"\n" );
-		fprintf( fg, "  basegame=\"default\"\n" );
-		fprintf( fg, "  no_patch=\"true\"\n" );
-		fprintf( fg, "  default_scale=\"0.25\"\n" );
-		break;
-	}
-	case GAME_WARSOW: {
-		fprintf( fg, "  prefix=\".warsow\"\n" );
-		fprintf( fg, "  basegame=\"basewsw\"\n" );
-		break;
-	}
-	case GAME_NEXUIZ: {
-		fprintf( fg, "  prefix=\".nexuiz\"\n" );
-		fprintf( fg, "  basegame=\"data\"\n" );
-		break;
-	}
-	case GAME_TREMULOUS: {
-		fprintf( fg, "  prefix=\".tremulous\"\n" );
-		fprintf( fg, "  basegame=\"base\"\n" );
-		break;
-	}
-	case GAME_JA: {
-		fprintf( fg, "  prefix=\".ja\"\n" );
-		fprintf( fg, "  basegame=\"base\"\n" );
-		fprintf( fg, "  shaderpath=\"shaders\"\n" );
-		fprintf( fg, "  default_scale=\"0.25\"\n" );
-		fprintf( fg, "  caulk_shader=\"textures/system/caulk\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/base/shaders/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "base/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			fprintf( fg, "  idtech2=\"true\"\n" );
+			fprintf( fg, "  basegame=\"default\"\n" );
+			fprintf( fg, "  no_patch=\"true\"\n" );
+			fprintf( fg, "  default_scale=\"0.25\"\n" );
+			break;
 		}
-		break;
-	}
-	case GAME_REACTION: {
-		fprintf( fg, "  prefix=\".Reaction\"\n" );
-		fprintf( fg, "  basegame=\"Boomstick\"\n" );
-		fprintf( fg, "  default_scale=\"0.5\"\n" );
-		break;
-	}
-	case GAME_ET: {
+		case GAME_WARSOW: {
+			fprintf( fg, "  prefix=\".warsow\"\n" );
+			fprintf( fg, "  basegame=\"basewsw\"\n" );
+			break;
+		}
+		case GAME_NEXUIZ: {
+			fprintf( fg, "  prefix=\".nexuiz\"\n" );
+			fprintf( fg, "  basegame=\"data\"\n" );
+			break;
+		}
+		case GAME_TREMULOUS: {
+			fprintf( fg, "  prefix=\".tremulous\"\n" );
+			fprintf( fg, "  basegame=\"base\"\n" );
+			break;
+		}
+		case GAME_JA: {
+			fprintf( fg, "  prefix=\".ja\"\n" );
+			fprintf( fg, "  basegame=\"base\"\n" );
+			fprintf( fg, "  shaderpath=\"shaders\"\n" );
+			fprintf( fg, "  default_scale=\"0.25\"\n" );
+			fprintf( fg, "  caulk_shader=\"textures/system/caulk\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/base/shaders/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "base/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
+		}
+		case GAME_REACTION: {
+			fprintf( fg, "  prefix=\".Reaction\"\n" );
+			fprintf( fg, "  basegame=\"Boomstick\"\n" );
+			fprintf( fg, "  default_scale=\"0.5\"\n" );
+			break;
+		}
+		case GAME_ET: {
 #ifdef _WIN32
-		fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"ET.exe\"\n");
+			fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"ET.exe\"\n" );
 #elif defined( __linux__ ) || defined( __FreeBSD__ )
-		fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"et\"\n" );
+			fprintf( fg, "  " ENGINE_ATTRIBUTE "=\"et\"\n" );
 #endif
-		fprintf( fg, "  prefix=\".etwolf\"\n" );
-		fprintf( fg, "  basegame=\"etmain\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/etmain/scripts/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "etmain/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			fprintf( fg, "  prefix=\".etwolf\"\n" );
+			fprintf( fg, "  basegame=\"etmain\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/etmain/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "etmain/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
 		}
-		break;
-	}
-	case GAME_QL: {
-		fprintf( fg, "  prefix=\".quakelive/quakelive/home\"\n" );
-		fprintf( fg, "  basegame=\"baseq3\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/baseq3/scripts/shaderlist.txt";
-		if ( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "baseq3/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+		case GAME_QL: {
+			fprintf( fg, "  prefix=\".quakelive/quakelive/home\"\n" );
+			fprintf( fg, "  basegame=\"baseq3\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/baseq3/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "baseq3/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
 		}
-		break;
-	}
-	case GAME_STVEF: {
-		fprintf( fg, "  prefix=\".stvef\"\n" );
-		fprintf( fg, "  basegame=\"baseEF\"\n" );
-		fprintf( fg, "  shaderpath=\"scripts\"\n" );
-		fprintf( fg, "  default_scale=\"0.25\"\n" );
-		fprintf( fg, "  caulk_shader=\"textures/common/caulk\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/baseEF/scripts/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "baseEF/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+		case GAME_STVEF: {
+			fprintf( fg, "  prefix=\".stvef\"\n" );
+			fprintf( fg, "  basegame=\"baseEF\"\n" );
+			fprintf( fg, "  shaderpath=\"scripts\"\n" );
+			fprintf( fg, "  default_scale=\"0.25\"\n" );
+			fprintf( fg, "  caulk_shader=\"textures/common/caulk\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/baseEF/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "baseEF/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
 		}
-		break;
-	}
-	case GAME_WOLF: {
-		fprintf( fg, "  prefix=\".wolf\"\n" );
-		fprintf( fg, "  basegame=\"main\"\n" );
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/main/scripts/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "main/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+		case GAME_WOLF: {
+			fprintf( fg, "  prefix=\".wolf\"\n" );
+			fprintf( fg, "  basegame=\"main\"\n" );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/main/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "main/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
 		}
-		break;
-	}
-	case GAME_UNVANQUISHED: {
-		fprintf( fg, "  prefix=\".unvanquished\"\n" );
-		fprintf( fg, "  basegame=\"pkg\"\n" );
+		case GAME_UNVANQUISHED: {
+			fprintf( fg, "  prefix=\".unvanquished\"\n" );
+			fprintf( fg, "  basegame=\"pkg\"\n" );
 
-		// Hardcoded fix for "missing" shaderlist in gamepack
-		Str dest = m_strEngine.GetBuffer();
-		dest += "/pkg/scripts/shaderlist.txt";
-		if( CheckFile( dest.GetBuffer() ) != PATH_FILE ) {
-			Str source = gameInstallPath.GetBuffer();
-			source += "pkg/scripts/default_shaderlist.txt";
-			radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			// Hardcoded fix for "missing" shaderlist in gamepack
+			Str dest = m_strEngine.GetBuffer();
+			dest += "/pkg/scripts/shaderlist.txt";
+			if ( CheckFile( dest.GetBuffer() ) != PATH_FILE )
+			{
+				Str source = gameInstallPath.GetBuffer();
+				source += "pkg/scripts/default_shaderlist.txt";
+				radCopyFile( source.GetBuffer(), dest.GetBuffer() );
+			}
+			break;
 		}
-		break;
+		}
+		fprintf( fg, "/>\n" );
+		fclose( fg );
 	}
-	}
-	fprintf( fg, "/>\n" );
-	fclose( fg );
-}
 
-/*
-   ===============
-   CGameInstall::ScanGames
-   scan for active games that can be installed, based on the presence
-   ===============
- */
-void CGameInstall::ScanGames() {
-	Str pakPaths = g_strAppPath.GetBuffer();
-	int iGame = 0;
-	const char      *dirname;
+	/*
+	   ===============
+	   CGameInstall::ScanGames
+	   scan for active games that can be installed, based on the presence
+	   ===============
+	 */
+	void CGameInstall::ScanGames()
+	{
+		Str pakPaths = g_strAppPath.GetBuffer();
+		int iGame = 0;
+		const char      *dirname;
 
-	pakPaths += "installs/";
-	FindFiles fileScan( pakPaths.GetBuffer() );
-	while ( ( dirname = fileScan.NextFile() ) != NULL ) {
-		if ( stricmp( dirname, Q3_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_Q3;
+		pakPaths += "installs/";
+		FindFiles fileScan( pakPaths.GetBuffer() );
+		while ( ( dirname = fileScan.NextFile() ) != NULL )
+		{
+			if ( stricmp( dirname, Q3_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_Q3;
+			}
+			if ( stricmp( dirname, LE_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_LIFEENGINE;
+			}
+			if ( stricmp( dirname, URT_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_URT;
+			}
+			if ( stricmp( dirname, UFOAI_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_UFOAI;
+			}
+			if ( stricmp( dirname, QUETOO_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_QUETOO;
+			}
+			if ( stricmp( dirname, WARSOW_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_WARSOW;
+			}
+			if ( stricmp( dirname, NEXUIZ_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_NEXUIZ;
+			}
+			if ( stricmp( dirname, Q2_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_Q2;
+			}
+			if ( stricmp( dirname, TREMULOUS_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_TREMULOUS;
+			}
+			if ( stricmp( dirname, JA_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_JA;
+			}
+			if ( stricmp( dirname, REACTION_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_REACTION;
+			}
+			if ( stricmp( dirname, ET_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_ET;
+			}
+			if ( stricmp( dirname, QL_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_QL;
+			}
+			if ( stricmp( dirname, STVEF_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_STVEF;
+			}
+			if ( stricmp( dirname, WOLF_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_WOLF;
+			}
+			if ( stricmp( dirname, Q1_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_Q1;
+			}
+			if ( stricmp( dirname, UNVANQUISHED_PACK ) == 0 )
+			{
+				m_availGames[ iGame++ ] = GAME_UNVANQUISHED;
+			}
 		}
-		if ( stricmp( dirname, URT_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_URT;
-		}
-		if ( stricmp( dirname, UFOAI_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_UFOAI;
-		}
-		if ( stricmp( dirname, QUETOO_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_QUETOO;
-		}
-		if ( stricmp( dirname, WARSOW_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_WARSOW;
-		}
-		if ( stricmp( dirname, NEXUIZ_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_NEXUIZ;
-		}
-		if ( stricmp( dirname, Q2_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_Q2;
-		}
-		if ( stricmp( dirname, TREMULOUS_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_TREMULOUS;
-		}
-		if ( stricmp( dirname, JA_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_JA;
-		}
-		if ( stricmp( dirname, REACTION_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_REACTION;
-		}
-		if ( stricmp( dirname, ET_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_ET;
-		}
-		if ( stricmp( dirname, QL_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_QL;
-		}
-		if ( stricmp( dirname, STVEF_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_STVEF;
-		}
-		if ( stricmp( dirname, WOLF_PACK ) == 0) {
-			m_availGames[ iGame++ ] = GAME_WOLF;
-		}
-		if ( stricmp( dirname, Q1_PACK ) == 0 ) {
-			m_availGames[ iGame++ ] = GAME_Q1;
-		}
-		if ( stricmp( dirname, UNVANQUISHED_PACK ) == 0) {
-			m_availGames[ iGame++ ] = GAME_UNVANQUISHED;
-		}
+		Sys_Printf( "No installable games found in: %s\n",
+					pakPaths.GetBuffer() );
 	}
-	Sys_Printf( "No installable games found in: %s\n",
-				pakPaths.GetBuffer() );
-}
