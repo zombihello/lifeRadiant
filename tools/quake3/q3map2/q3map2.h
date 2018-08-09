@@ -35,8 +35,8 @@
 
 
 /* version */
-#define Q3MAP_VERSION   "2.5.17"
-#define Q3MAP_MOTD      "We're still here"
+#define Q3MAP_VERSION   "2.6.0"
+#define Q3MAP_MOTD      "lifeEngine"
 
 
 /* -------------------------------------------------------------------------------
@@ -1875,6 +1875,10 @@ void                        LoadRBSPFile( const char *filename );
 void                        WriteRBSPFile( const char *filename );
 
 
+/* bspfile_lbsp.c */
+void                        LoadLBSPFile( const char *filename );
+void                        WriteLBSPFile( const char *filename );
+
 
 /* -------------------------------------------------------------------------------
 
@@ -1889,6 +1893,8 @@ void                        WriteRBSPFile( const char *filename );
 	#define Q_EXTERN extern
 	#define Q_ASSIGN( a )
 #endif
+
+#define LIFEENGINE_ID 15
 
 /* game support */
 Q_EXTERN game_t games[]
@@ -1926,6 +1932,8 @@ Q_EXTERN game_t games[]
 								#include "game_qfusion.h"   /* qfusion game */
 	,
 								#include "game_reaction.h" /* must be after game_quake3.h */
+	,
+								#include "game_lifeengine.h"
 	,
 								#include "game__null.h" /* null game (must be last item) */
 	};

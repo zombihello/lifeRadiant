@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClCompile Include="bspfile_abstract.c" />
     <ClCompile Include="bspfile_ibsp.c" />
+    <ClCompile Include="bspfile_lbsp.c" />
     <ClCompile Include="bspfile_rbsp.c" />
     <ClCompile Include="image.c" />
     <ClCompile Include="main.c" />

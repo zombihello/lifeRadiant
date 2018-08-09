@@ -325,6 +325,7 @@ void AddGamePath( char *path ){
 
 void InitPaths( int *argc, char **argv ){
 	int i, j, k, len, len2;
+	bool IsUseLifeEngine;
 	char temp[ MAX_OS_PATH ];
 
 	/* note it */
@@ -337,6 +338,7 @@ void InitPaths( int *argc, char **argv ){
 	game = &games[ 0 ];
 	numBasePaths = 0;
 	numGamePaths = 0;
+	IsUseLifeEngine = 0;
 
 	/* parse through the arguments and extract those relevant to paths */
 	for ( i = 0; i < *argc; i++ )
@@ -346,8 +348,15 @@ void InitPaths( int *argc, char **argv ){
 			continue;
 		}
 
+		/* -le */
+		if ( strcmp( argv[ i ], "-le" ) == 0 )
+		{
+			IsUseLifeEngine = 1;
+			game = &games[ LIFEENGINE_ID ];
+		}
+
 		/* -game */
-		if ( strcmp( argv[ i ], "-game" ) == 0 ) {
+		if ( !IsUseLifeEngine && strcmp( argv[ i ], "-game" ) == 0 ) {
 			if ( ++i >= *argc ) {
 				Error( "Out of arguments: No game specified after %s", argv[ i - 1 ] );
 			}
