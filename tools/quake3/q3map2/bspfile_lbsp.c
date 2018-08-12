@@ -579,7 +579,6 @@ void ConvertGeometry_lifeEngine()
 	{
 		bspDrawSurface_t* Surface = &bspDrawSurfaces[ idSurface ];
 		Surface->firstIndex = NumberDrawIndexes;
-
 		for ( int Count = 0; Count < CountVertexInSurface[ idSurface ] && idVert < SizeBuffer_DrawVertexes; Count++, idVert++ )
 		{
 			bspDrawVert_t TempVertex = Buffer_Vertexes[ idVert ];
@@ -615,7 +614,7 @@ void ConvertGeometry_lifeEngine()
 				NumberDrawIndexes++;
 			}
 		}
-
+		
 		Surface->numIndexes = NumberDrawIndexes - Surface->firstIndex;
 	}
 
@@ -643,7 +642,6 @@ void WriteLBSPFile( const char *filename )
 	/* Конвертация геометрии в формат lifeEngine */
 	ConvertGeometry_lifeEngine();
 
-	//printf( " nurrrm: %i", NumberDrawVertexes );
 	/* set header */
 	header = &outheader;
 	memset( header, 0, sizeof( *header ) );

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <qpref version="1">
-  <epair name="gamefile">q3.game</epair>
+  <epair name="gamefile">le.engine</epair>
   <epair name="autoload">false</epair>
   <epair name="log console">true</epair>
 </qpref>
