@@ -1875,11 +1875,6 @@ void                        LoadRBSPFile( const char *filename );
 void                        WriteRBSPFile( const char *filename );
 
 
-/* bspfile_lbsp.c */
-void                        LoadLBSPFile( const char *filename );
-void                        WriteLBSPFile( const char *filename );
-
-
 /* -------------------------------------------------------------------------------
 
    bsp/general global variables

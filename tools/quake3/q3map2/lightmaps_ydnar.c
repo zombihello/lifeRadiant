@@ -982,19 +982,19 @@ void SetupSurfaceLightmaps( void ){
 	/* allocate a list of surface indexes to be sorted */
 	sortSurfaces = safe_malloc( numBSPDrawSurfaces * sizeof( int ) );
 	memset( sortSurfaces, 0, numBSPDrawSurfaces * sizeof( int ) );
-
+	
 	/* walk each model in the bsp */
 	for ( i = 0; i < numBSPModels; i++ )
 	{
 		/* get model */
 		model = &bspModels[ i ];
-
+		
 		/* walk the list of surfaces in this model and fill out the info structs */
 		for ( j = 0; j < model->numBSPSurfaces; j++ )
 		{
 			/* make surface index */
 			num = model->firstBSPSurface + j;
-
+		
 			/* copy index to sort list */
 			sortSurfaces[ num ] = num;
 
@@ -1091,7 +1091,7 @@ void SetupSurfaceLightmaps( void ){
 			}
 		}
 	}
-
+	
 	/* find longest map distance */
 	VectorSubtract( mapMaxs, mapMins, mapSize );
 	maxMapDistance = VectorLength( mapSize );

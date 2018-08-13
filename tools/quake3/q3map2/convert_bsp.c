@@ -57,6 +57,7 @@ int ConvertBSPMain( int argc, char **argv ){
 	/* process arguments */
 	for ( i = 1; i < ( argc - 1 ); i++ )
 	{
+		
 		/* -format map|ase|... */
 		if ( !strcmp( argv[ i ],  "-format" ) ) {
 			i++;
