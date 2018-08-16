@@ -2,7 +2,7 @@
 <qpref version="1">
   <epair name="PatchShowBounds">false</epair>
   <epair name="MouseButtons">1</epair>
-  <epair name="LastProject">D:/Games/SteamLibrary/steamapps/common/Return to Castle Wolfenstein/main\scripts\user2.proj</epair>
+  <epair name="LastProject">D:/Projects/C++/GameEngine/lifeRadiant/lifeRadiant/install/installs/Q3Pack/baseq3\scripts\user2.proj</epair>
   <epair name="LastProjectKey">2</epair>
   <epair name="PrefabPath"/>
   <epair name="LastLightIntensity">300</epair>
@@ -102,13 +102,13 @@
   <epair name="SurfaceWnd">0 0 200 200</epair>
   <epair name="EntityInfoDlg">0 0 200 200</epair>
   <epair name="ZWidth">30</epair>
-  <epair name="XYHeight">565</epair>
-  <epair name="XYWidth">407</epair>
+  <epair name="XYHeight">648</epair>
+  <epair name="XYWidth">519</epair>
   <epair name="CamWidth">200</epair>
-  <epair name="CamHeight">428</epair>
-  <epair name="ZWidthFloating">565</epair>
+  <epair name="CamHeight">200</epair>
+  <epair name="ZWidthFloating">648</epair>
   <epair name="State">4</epair>
-  <epair name="TextureDirectoryListWidth">139</epair>
+  <epair name="TextureDirectoryListWidth">50</epair>
   <epair name="Count">1</epair>
   <epair name="File0">C:/Users/Egor/Desktop/1.map</epair>
   <epair name="File1"/>
