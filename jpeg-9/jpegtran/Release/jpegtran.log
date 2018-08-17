@@ -1,0 +1,13 @@
+﻿Build started 2013/5/27 17:19:15.
+     1>Project "C:\Users\ttimo_000\Documents\GitHub\jpeg-9\jpegtran.vcxproj" on node 4 (Build target(s)).
+     1>Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"jpegtran\Release\jpegtran.exe" /INCREMENTAL:NO /NOLOGO Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"jpegtran\Release\jpegtran.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"jpegtran\Release\jpegtran.lib" /MACHINE:X86 /SAFESEH jpegtran\Release\cdjpeg.obj
+         jpegtran\Release\jpegtran.obj
+         jpegtran\Release\rdswitch.obj
+         jpegtran\Release\transupp.obj
+     1>LINK : fatal error LNK1181: cannot open input file 'Release\jpeg.lib'
+     1>Done Building Project "C:\Users\ttimo_000\Documents\GitHub\jpeg-9\jpegtran.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.07

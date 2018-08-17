@@ -1,0 +1,8 @@
+This was retrieved from http://libjpeg.sourceforge.net/
+For more information, see: http://www.ijg.org/files/
+Original Package: jpegsr9.zip
+
+Compiled static libraries locally, targeting both 32 and 64 bit
+nmake /f makefile.vc setup-v10
+grabbed win32.mak from C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include
+etc.

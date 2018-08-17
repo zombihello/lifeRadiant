@@ -1,0 +1,4 @@
+This was retrieved from http://www.gtk.org/download/win32.php:
+
+- Commented out an #include <unistd.h> to fix Windows compile.
+- Turned off libintl.h creating defines for things like fprintf to route those calls (<- IMPORTANT!)
