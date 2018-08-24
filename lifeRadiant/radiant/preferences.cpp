@@ -1150,25 +1150,21 @@ void CGameDialog::DoGameDialog()
 
 GtkWidget* CGameDialog::GetGlobalFrame()
 {
-	GtkWidget *vbox, *text, *combo, *check;
+	GtkWidget *vbox, *combo, *check;
 
 	if ( mFrame != NULL )
 	{
 		return mFrame;
 	}
 
-	mFrame = gtk_frame_new( _( "Select profile" ) );
-	gtk_container_set_border_width( GTK_CONTAINER( mFrame ), 5 );
+	mFrame = gtk_frame_new( _( "" ) );
+	gtk_container_set_border_width( GTK_CONTAINER( mFrame ), 16 );
 	gtk_widget_show( mFrame );
 
 	vbox = gtk_vbox_new( FALSE, 5 );
 	gtk_container_add( GTK_CONTAINER( mFrame ), vbox );
 	gtk_container_set_border_width( GTK_CONTAINER( vbox ), 5 );
 	gtk_widget_show( vbox );
-
-	text = gtk_label_new( _( "Select profile:" ) );
-	gtk_widget_show( text );
-	gtk_box_pack_start( GTK_BOX( vbox ), text, FALSE, FALSE, 0 );
 
 	combo = gtk_combo_box_text_new();
 	gtk_box_pack_start( GTK_BOX( vbox ), combo, FALSE, FALSE, 0 );
@@ -1177,23 +1173,6 @@ GtkWidget* CGameDialog::GetGlobalFrame()
 	mGameCombo = GTK_COMBO_BOX_TEXT( combo );
 
 	UpdateGameCombo();
-
-	check = gtk_check_button_new_with_label( _( "Auto load selected profile on startup" ) );
-	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
-	gtk_widget_show( check );
-	AddDialogData( check, &m_bAutoLoadGame, DLG_CHECK_BOOL );
-
-	text = gtk_label_new( _( "(use preferences to undo this)" ) );
-	gtk_box_pack_start( GTK_BOX( vbox ), text, FALSE, FALSE, 0 );
-	gtk_misc_set_alignment( GTK_MISC( text ), 0.0, 0.5 );
-	gtk_widget_show( text );
-
-#ifdef _WIN32
-	check = gtk_check_button_new_with_label( _( "Networked install - per-user settings" ) );
-	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
-	gtk_widget_show( check );
-	AddDialogData( check, &m_bNetRun, DLG_CHECK_BOOL );
-#endif
 
 	check = gtk_check_button_new_with_label( _( "Log the console to radiant.log" ) );
 	gtk_box_pack_start( GTK_BOX( vbox ), check, FALSE, FALSE, 0 );
@@ -1222,9 +1201,6 @@ void CGameDialog::UpdateData( bool retrieve )
 			}
 			i++;
 		}
-#ifdef _WIN32
-		UpdateNetrun( false );
-#endif
 	}
 	Dialog::UpdateData( retrieve );
 	if ( retrieve )
@@ -1237,9 +1213,6 @@ void CGameDialog::UpdateData( bool retrieve )
 			iGame++;
 		}
 		m_sGameFile = ( *iGame )->mGameFile;
-#ifdef _WIN32
-		UpdateNetrun( true );
-#endif
 	}
 }
 
@@ -1252,10 +1225,10 @@ void CGameDialog::SInstallCallback( GtkWidget *widget, gpointer data )
 
 void CGameDialog::BuildDialog()
 {
-	GtkWidget *dlg, *vbox1, *button, *setup_button;
+	GtkWidget *dlg, *vbox1, *button; //*setup_button;
 
 	dlg = m_pWidget;
-	gtk_window_set_title( GTK_WINDOW( dlg ), _( "Select profile" ) );
+	gtk_window_set_title( GTK_WINDOW( dlg ), _( "lifeEngine Radiant" ) );
 
 	vbox1 = gtk_vbox_new( FALSE, 0 );
 	gtk_container_set_border_width( GTK_CONTAINER( vbox1 ), 5 );
@@ -1265,19 +1238,13 @@ void CGameDialog::BuildDialog()
 	gtk_container_add( GTK_CONTAINER( vbox1 ), GetGlobalFrame() );
 	mTopBox = vbox1;
 
-	button = gtk_button_new_with_label( _( "Start editor on selected profile" ) );
-	gtk_box_pack_start( GTK_BOX( vbox1 ), button, FALSE, FALSE, 0 );
+	button = gtk_button_new_with_label( _( "Open Radiant" ) );
+	gtk_box_pack_start( GTK_BOX( vbox1 ), button, FALSE, FALSE, 5 );
 	gtk_widget_show( button );
 	AddModalButton( button, IDOK );
 
-	setup_button = gtk_button_new_with_label( _( "Configure editor for another profile" ) );
-	gtk_box_pack_start( GTK_BOX( vbox1 ), setup_button, FALSE, FALSE, 0 );
-	gtk_widget_show( setup_button );
-	g_signal_connect( G_OBJECT( setup_button ), "clicked",
-					  G_CALLBACK( SInstallCallback ), this );
-
 	button = gtk_button_new_with_label( _( "Exit" ) );
-	gtk_box_pack_start( GTK_BOX( vbox1 ), button, TRUE, TRUE, 0 );
+	gtk_box_pack_start( GTK_BOX( vbox1 ), button, TRUE, TRUE, 5 );
 	gtk_widget_show( button );
 	AddModalButton( button, IDCANCEL );
 
@@ -1288,7 +1255,6 @@ void CGameDialog::UpdateGameCombo()
 {
 	// fill in with the game descriptions
 	list<CGameDescription *>::iterator iGame;
-	GtkListStore *store;
 
 	if ( mGameCombo == NULL )
 	{
@@ -1300,13 +1266,17 @@ void CGameDialog::UpdateGameCombo()
 #if GTK_CHECK_VERSION( 3, 0, 0 )
 	gtk_combo_box_text_remove_all( GTK_COMBO_BOX_TEXT( mGameCombo ) );
 #else
-	store = GTK_LIST_STORE( gtk_combo_box_get_model( GTK_COMBO_BOX( mGameCombo ) ) );
-	gtk_list_store_clear( store );
+	//store = GTK_LIST_STORE( gtk_combo_box_get_model( GTK_COMBO_BOX( mGameCombo ) ) );
+	//gtk_list_store_clear( store );
 #endif
-	for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
+	/*for ( iGame = mGames.begin(); iGame != mGames.end(); iGame++ )
 	{
 		gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( mGameCombo ), ( *iGame )->mGameName.GetBuffer() );
 	}
+	*/
+
+	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mGameCombo), "lifeEngine");
+
 	gtk_combo_box_set_active( GTK_COMBO_BOX( mGameCombo ), 0 );
 }
 
@@ -1434,6 +1404,10 @@ void CGameDialog::Init()
 		}
 	}
 	LoadPrefs();
+
+	//- Auto Startup
+	m_bAutoLoadGame = true;
+
 	if ( m_bAutoLoadGame )
 	{
 		// search by .game name
@@ -1549,60 +1523,6 @@ void CGameDialog::AddPacksURL( Str &URL )
 #define NETRUN_FILENAME "netrun.conf"
 
 bool CGameDialog::m_bNetRun;
-
-void CGameDialog::UpdateNetrun( bool retrieve )
-{
-	FILE *f_netrun;
-	CString strNetrun;
-	strNetrun = g_strAppPath; strNetrun += NETRUN_FILENAME;
-	if ( !retrieve )
-	{
-		// now check if we are running from a network installation
-		// use a dummy file as the flag
-		f_netrun = fopen( strNetrun.GetBuffer(), "r" );
-		if ( f_netrun )
-		{
-			fclose( f_netrun );
-			m_bNetRun = true;
-		}
-		else
-		{
-			m_bNetRun = false;
-		}
-	}
-	else
-	{
-		if ( m_bNetRun )
-		{
-			f_netrun = fopen( strNetrun.GetBuffer(), "w" );
-			if ( !f_netrun )
-			{
-				Sys_FPrintf( SYS_ERR, "ERROR: Failed to create netrun file '%s'\n", strNetrun.GetBuffer() );
-				m_bNetRun = false;
-			}
-			else
-			{
-				fclose( f_netrun );
-				Sys_Printf( "Created/Checked '%s'\n", strNetrun.GetBuffer() );
-			}
-		}
-		else
-		{
-			if ( remove( strNetrun.GetBuffer() ) == -1 )
-			{
-				if ( errno != ENOENT )
-				{
-					Sys_FPrintf( SYS_ERR, "Failed to remove netrun file '%s'\n", strNetrun.GetBuffer() );
-				}
-				m_bNetRun = true;
-			}
-			else
-			{
-				Sys_Printf( "Netrun mode is disabled\n" );
-			}
-		}
-	}
-}
 
 bool CGameDialog::GetNetrun()
 {

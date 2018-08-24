@@ -425,7 +425,6 @@ struct SKeyInfo
 #define ID_GRID_128                     40309
 #define ID_GRID_256                     40310
 
-#define ID_FILE_CHECKUPDATE             40320
 
 #define ID_TEXTUREWINDOW_SCALEUP        40321
 #define ID_TEXTUREWINDOW_SCALEDOWN      40322
@@ -472,12 +471,6 @@ protected:
  */
 vector<Str *> mHelpURLs;
 
-/*!
-   scan the .game files for game install packs
-   look there for help description nodes
-   build the corresponding menus in Radiant
- */
-void create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel );
 
 /*!
    build the menu once the filename is found
@@ -580,7 +573,6 @@ protected:
 bool m_bDoLoop;
 bool m_bSplittersOK;
 void CreateQEChildren();
-void LoadCommandMap();
 void ShowMenuItemKeyBindings( GtkWidget* window );
 
 public:
@@ -608,7 +600,6 @@ void OnFileOpen();
 void OnFilePointfile();
 void OnFileSave();
 void OnFileSaveas();
-void OnFileCheckUpdate();
 void OnView100();
 void OnViewCenter();
 void OnViewConsole();

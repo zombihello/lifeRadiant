@@ -396,9 +396,7 @@ gint HandleCommand( GtkWidget *widget, gpointer data ){
 	if ( id >= CMD_TEXTUREWAD && id <= CMD_TEXTUREWAD_END ) {
 		g_pParentWnd->OnTextureWad( id );
 	}
-	else if ( id >= CMD_BSPCOMMAND && id <= CMD_BSPCOMMAND_END ) {
-		g_pParentWnd->OnBspCommand( id );
-	}
+
 	else if ( id >= ID_FILE_RECENT1 && id <= ID_FILE_RECENT4 ) {
 		g_pParentWnd->OnMru( id );
 	}
@@ -447,7 +445,6 @@ gint HandleCommand( GtkWidget *widget, gpointer data ){
 		  case ID_FILE_LOADPROJECT: g_pParentWnd->OnFileLoadproject(); break;
 		  case ID_FILE_PROJECTSETTINGS: g_pParentWnd->OnFileProjectsettings(); break;
 		  case ID_FILE_POINTFILE: g_pParentWnd->OnFilePointfile(); break;
-		  case ID_FILE_CHECKUPDATE: g_pParentWnd->OnFileCheckUpdate(); break;
 		  case ID_FILE_EXIT: g_pParentWnd->OnFileExit(); break;
 		  case ID_FILE_IMPORTMAP: g_pParentWnd->OnFileImportmap(); break;
 		  case ID_EDIT_UNDO: g_pParentWnd->OnEditUndo(); break;
@@ -930,23 +927,6 @@ void MainFrame::process_xlink( Str &FileName, const char *menu_name, const char 
 	}
 }
 
-void MainFrame::create_game_help_menu( GtkWidget *menu, GtkAccelGroup *accel ){
-	Str FileName;
-	list<CGameDescription *>::iterator iGame;
-
-	// start in the global dir
-	FileName = g_strAppPath;
-	FileName += "global.xlink";
-	process_xlink( FileName, "General", g_strAppPath.GetBuffer(), menu, accel );
-
-	for ( iGame = g_PrefsDlg.mGamesDialog.mGames.begin(); iGame != g_PrefsDlg.mGamesDialog.mGames.end(); iGame++ )
-	{
-		FileName = ( *iGame )->mGameToolsPath;
-		FileName += "game.xlink";
-		process_xlink( FileName, ( *iGame )->mGameName, ( *iGame )->mGameToolsPath.GetBuffer(), menu, accel );
-	}
-}
-
 void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 	GtkWidget *menu_bar, *menu, *menu_in_menu, *menu_3, *item;
 	GtkAccelGroup *accel;
@@ -1006,6 +986,7 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 	menu_separator( menu );
 	item = create_menu_item_with_mnemonic( menu, _( "Recent Files" ),
 										   G_CALLBACK( HandleCommand ), ID_FILE_RECENT1 );
+
 	g_object_set_data( G_OBJECT( item ), "accel", accel );
 	gtk_widget_set_sensitive( item, FALSE );
 	MRU_AddWidget( item, 0 );
@@ -1019,13 +1000,17 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 	MRU_AddWidget( item, 2 );
 	item = create_menu_item_with_mnemonic( menu, "4",
 										   G_CALLBACK( HandleCommand ), ID_FILE_RECENT4 );
+	
 	gtk_widget_hide( item );
 	MRU_AddWidget( item, 3 );
 	menu_separator( menu );
+
+	/*
 	item = create_menu_item_with_mnemonic( menu, _( "Check for GtkRadiant update (web)" ),
 										   G_CALLBACK( HandleCommand ), ID_FILE_CHECKUPDATE );
 	// disable, the functionality is no longer available
 	gtk_widget_set_sensitive( item, FALSE );
+	*/
 
 	create_menu_item_with_mnemonic( menu, _( "E_xit" ),
 									G_CALLBACK( HandleCommand ), ID_FILE_EXIT );
@@ -1269,13 +1254,17 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 									G_CALLBACK( HandleCommand ), ID_SELECTION_MAKE_STRUCTURAL );
 
 	// BSP menu
-	menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Bsp" ) );
 
-	menu_separator( menu );
-	g_object_set_data( G_OBJECT( window ), "menu_bsp", menu );
+
+	//menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Bsp" ) );
+
+	//menu_separator( menu );
+	//g_object_set_data( G_OBJECT( window ), "menu_bsp", menu );
+
 
 	// Grid menu
 	menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Grid" ) );
+
 	if ( g_PrefsDlg.m_bDetachableMenus ) {
 		menu_tearoff( menu );
 	}
@@ -1419,12 +1408,13 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 
 	create_menu_item_with_mnemonic( menu, _( "_Benchmark" ), G_CALLBACK( HandleCommand ), ID_MISC_BENCHMARK );
 	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Colors" ) );
+	/*
 	menu_3 = create_menu_in_menu_with_mnemonic( menu_in_menu, _( "Themes" ) );
 	create_menu_item_with_mnemonic( menu_3, _( "QE4 Original" ), G_CALLBACK( HandleCommand ), ID_COLOR_SETORIGINAL );
 	create_menu_item_with_mnemonic( menu_3, _( "Q3Radiant Original" ), G_CALLBACK( HandleCommand ), ID_COLOR_SETQER );
 	create_menu_item_with_mnemonic( menu_3, _( "Black and Green" ), G_CALLBACK( HandleCommand ), ID_COLOR_SETBLACK );
 	create_menu_item_with_mnemonic( menu_3, _( "Maya/Max/Lightwave Emulation" ), G_CALLBACK( HandleCommand ), ID_COLOR_SETYDNAR );
-
+	*/
 	menu_separator( menu_in_menu );
 	create_menu_item_with_mnemonic( menu_in_menu, _( "_Texture Background..." ),
 									G_CALLBACK( HandleCommand ), ID_TEXTUREBK );
@@ -1511,83 +1501,82 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 									G_CALLBACK( HandleCommand ), ID_BRUSH_PRIMITIVES_SPHERE );
 
 	// Curve menu
-	if ( !g_pGameDescription->mNoPatch ) {
-		menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Curve" ) );
-		if ( g_PrefsDlg.m_bDetachableMenus ) {
-			menu_tearoff( menu );
-		}
-
-		create_menu_item_with_mnemonic( menu, _( "Cylinder" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHTUBE );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "More Cylinders" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Dense Cylinder" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_PATCHDENSETUBE );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Very Dense Cylinder" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_PATCHVERYDENSETUBE );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Square Cylinder" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_PATCHSQUARE );
-		menu_separator( menu );
-		create_menu_item_with_mnemonic( menu, _( "End cap" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHENDCAP );
-		create_menu_item_with_mnemonic( menu, _( "Bevel" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHBEVEL );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "More End caps, Bevels" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Square Endcap" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_MOREENDCAPSBEVELS_SQUAREBEVEL );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Square Bevel" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_MOREENDCAPSBEVELS_SQUAREENDCAP );
-		menu_separator( menu );
-		create_menu_item_with_mnemonic( menu, _( "Cone" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHCONE );
-		item = create_menu_item_with_mnemonic( menu, _( "Sphere" ),
-											   G_CALLBACK( HandleCommand ), ID_CURVE_PRIMITIVES_SPHERE );
-		gtk_widget_set_sensitive( item, FALSE );
-		menu_separator( menu );
-		item = create_menu_item_with_mnemonic( menu, _( "Simple Patch Mesh..." ),
-											   G_CALLBACK( HandleCommand ), ID_CURVE_SIMPLEPATCHMESH );
-		g_object_set_data( G_OBJECT( window ), "menu_simplepatchmesh", item );
-		create_menu_item_with_mnemonic( menu, _( "Patch Inspector..." ), G_CALLBACK( HandleCommand ), ID_PATCH_INSPECTOR );
-		menu_separator( menu );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Insert" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Insert (2) Columns" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_INSERTCOLUMN );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Add (2) Columns" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_ADDCOLUMN );
-		menu_separator( menu_in_menu );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Insert (2) Rows" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_INSERTROW );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Add (2) Rows" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_ADDROW );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Delete" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "First (2) Columns" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_FIRSTCOLUMN );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Last (2) Columns" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_LASTCOLUMN );
-		menu_separator( menu_in_menu );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "First (2) Rows" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_FIRSTROW );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Last (2) Rows" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_LASTROW );
-		menu_separator( menu );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Matrix" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Invert" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_NEGATIVE );
-		menu_3 = create_menu_in_menu_with_mnemonic( menu_in_menu, _( "Re-disperse" ) );
-		create_menu_item_with_mnemonic( menu_3, _( "Rows" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_ROWS );
-		create_menu_item_with_mnemonic( menu_3, _( "Cols (Intermediate)" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_INTERMEDIATE_COLS );
-		create_menu_item_with_mnemonic( menu_3, _( "Rows (Intermediate)" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_INTERMEDIATE_ROWS );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Transpose" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_MATRIX_TRANSPOSE );
-		menu_separator( menu );
-		create_menu_item_with_mnemonic( menu, _( "Cap Selection" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_CAP );
-		create_menu_item_with_mnemonic( menu, _( "Cycle Cap Texture" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_CYCLECAP );
-		menu_separator( menu );
-		menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Overlay" ) );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Set" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_OVERLAY_SET );
-		create_menu_item_with_mnemonic( menu_in_menu, _( "Clear" ),
-										G_CALLBACK( HandleCommand ), ID_CURVE_OVERLAY_CLEAR );
-		menu_separator( menu );
-		create_menu_item_with_mnemonic( menu, _( "Thicken..." ), G_CALLBACK( HandleCommand ), ID_CURVE_THICKEN );
+	menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Curve" ) );
+	if ( g_PrefsDlg.m_bDetachableMenus ) {
+		menu_tearoff( menu );
 	}
+
+	create_menu_item_with_mnemonic( menu, _( "Cylinder" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHTUBE );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "More Cylinders" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Dense Cylinder" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_PATCHDENSETUBE );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Very Dense Cylinder" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_PATCHVERYDENSETUBE );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Square Cylinder" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_PATCHSQUARE );
+	menu_separator( menu );
+	create_menu_item_with_mnemonic( menu, _( "End cap" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHENDCAP );
+	create_menu_item_with_mnemonic( menu, _( "Bevel" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHBEVEL );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "More End caps, Bevels" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Square Endcap" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_MOREENDCAPSBEVELS_SQUAREBEVEL );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Square Bevel" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_MOREENDCAPSBEVELS_SQUAREENDCAP );
+	menu_separator( menu );
+	create_menu_item_with_mnemonic( menu, _( "Cone" ), G_CALLBACK( HandleCommand ), ID_CURVE_PATCHCONE );
+	item = create_menu_item_with_mnemonic( menu, _( "Sphere" ),
+											G_CALLBACK( HandleCommand ), ID_CURVE_PRIMITIVES_SPHERE );
+	gtk_widget_set_sensitive( item, FALSE );
+	menu_separator( menu );
+	item = create_menu_item_with_mnemonic( menu, _( "Simple Patch Mesh..." ),
+											G_CALLBACK( HandleCommand ), ID_CURVE_SIMPLEPATCHMESH );
+	g_object_set_data( G_OBJECT( window ), "menu_simplepatchmesh", item );
+	create_menu_item_with_mnemonic( menu, _( "Patch Inspector..." ), G_CALLBACK( HandleCommand ), ID_PATCH_INSPECTOR );
+	menu_separator( menu );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Insert" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Insert (2) Columns" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_INSERTCOLUMN );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Add (2) Columns" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_ADDCOLUMN );
+	menu_separator( menu_in_menu );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Insert (2) Rows" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_INSERTROW );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Add (2) Rows" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_INSERT_ADDROW );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Delete" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "First (2) Columns" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_FIRSTCOLUMN );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Last (2) Columns" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_LASTCOLUMN );
+	menu_separator( menu_in_menu );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "First (2) Rows" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_FIRSTROW );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Last (2) Rows" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_DELETE_LASTROW );
+	menu_separator( menu );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Matrix" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Invert" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_NEGATIVE );
+	menu_3 = create_menu_in_menu_with_mnemonic( menu_in_menu, _( "Re-disperse" ) );
+	create_menu_item_with_mnemonic( menu_3, _( "Rows" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_ROWS );
+	create_menu_item_with_mnemonic( menu_3, _( "Cols (Intermediate)" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_INTERMEDIATE_COLS );
+	create_menu_item_with_mnemonic( menu_3, _( "Rows (Intermediate)" ), G_CALLBACK( HandleCommand ), ID_CURVE_REDISPERSE_INTERMEDIATE_ROWS );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Transpose" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_MATRIX_TRANSPOSE );
+	menu_separator( menu );
+	create_menu_item_with_mnemonic( menu, _( "Cap Selection" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_CAP );
+	create_menu_item_with_mnemonic( menu, _( "Cycle Cap Texture" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_CYCLECAP );
+	menu_separator( menu );
+	menu_in_menu = create_menu_in_menu_with_mnemonic( menu, _( "Overlay" ) );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Set" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_OVERLAY_SET );
+	create_menu_item_with_mnemonic( menu_in_menu, _( "Clear" ),
+									G_CALLBACK( HandleCommand ), ID_CURVE_OVERLAY_CLEAR );
+	menu_separator( menu );
+	create_menu_item_with_mnemonic( menu, _( "Thicken..." ), G_CALLBACK( HandleCommand ), ID_CURVE_THICKEN );
+
 	// Plugins menu
 	menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Plugins" ) );
 	if ( g_PrefsDlg.m_bDetachableMenus ) {
@@ -1612,10 +1601,6 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 										   G_CALLBACK( HandleCommand ), ID_HELP );
 	// does not work, using g_Commands for the key binding
 	//gtk_widget_add_accelerator( item, "activate", accel, GDK_F1, (GdkModifierType)0, GTK_ACCEL_VISIBLE );
-
-	// this creates all the per-game drop downs for the game pack helps
-	// it will take care of hooking the Sys_OpenURL calls etc.
-	create_game_help_menu( menu, accel );
 
 	// TTimo: this is in global.xlink now
 	//create_menu_item_with_mnemonic (menu, "Links",
@@ -3095,7 +3080,6 @@ void MainFrame::Create(){
 
 	g_pParentWnd->OnEntitiesSetViewAs( 0 );
 
-	LoadCommandMap();
 	ShowMenuItemKeyBindings( window );
 
 	if ( g_qeglobals_gui.d_edit != NULL ) {
@@ -3581,114 +3565,6 @@ void MainFrame::OnDestroy(){
 	Sys_Printf( "Done.\n" );
 }
 
-// TTimo: now using profile.cpp code
-void MainFrame::LoadCommandMap(){
-	FILE *f;
-	CString strINI;
-	bool bUserCmdList = false;
-	int nLen;
-	// verbose a little: count of user commands we recognized
-	int iCount = 0;
-	int iOverrideCount = 0;
-	int j;
-
-
-#if defined( __linux__ ) || defined( __FreeBSD__ ) || defined( __APPLE__ )
-	strINI = g_PrefsDlg.m_rc_path->str;
-#elif defined( WIN32 )
-	strINI = g_strGameToolsPath;
-#else
-#error "WTF are you compiling this on"
-#endif
-	AddSlash( strINI );
-	strINI += "shortcuts.ini";
-
-	f = fopen( strINI.GetBuffer(), "r" );
-	if ( f != NULL ) {
-		fclose( f );
-		// loop through all the commands
-		for ( int i = 0; i < g_nCommandCount; i++ )
-		{
-			char value[1024];
-			if ( read_var( strINI.GetBuffer(), "Commands", g_Commands[i].m_strCommand, value ) ) {
-				if ( !bUserCmdList ) {
-					Sys_Printf( "Found user's shortcuts list at %s\n", strINI.GetBuffer() );
-					bUserCmdList = true;
-				}
-				CString strBuff;
-				strBuff = value;
-				strBuff.TrimLeft();
-				strBuff.TrimRight();
-				strBuff.MakeLower();
-				int nSpecial = strBuff.Find( "+alt" );
-				g_Commands[i].m_nModifiers = 0;
-				if ( nSpecial >= 0 ) {
-					g_Commands[i].m_nModifiers |= RAD_ALT;
-					FindReplace( strBuff, "+alt", "" );
-				}
-				nSpecial = strBuff.Find( "+ctrl" );
-				if ( nSpecial >= 0 ) {
-					g_Commands[i].m_nModifiers |= RAD_CONTROL;
-					FindReplace( strBuff, "+ctrl", "" );
-				}
-				nSpecial = strBuff.Find( "+shift" );
-				if ( nSpecial >= 0 ) {
-					g_Commands[i].m_nModifiers |= RAD_SHIFT;
-					FindReplace( strBuff, "+shift", "" );
-				}
-				strBuff.TrimLeft();
-				strBuff.TrimRight();
-				strBuff.MakeUpper();
-				// strBuff has been cleaned of it's modifiers .. switch between a regular key and a virtual one
-				// based on length
-				nLen = strBuff.GetLength();
-				if ( nLen == 1 ) { // most often case.. deal with first
-					g_Commands[i].m_nKey = toascii( strBuff.GetAt( 0 ) );
-					iCount++;
-				}
-				else // special key
-				{
-					for ( j = 0; j < g_nKeyCount; j++ )
-					{
-						if ( strBuff.CompareNoCase( g_Keys[j].m_strName ) == 0 ) {
-							g_Commands[i].m_nKey = g_Keys[j].m_nVKKey;
-							iCount++;
-							break;
-						}
-					}
-					if ( j == g_nKeyCount ) {
-						Sys_FPrintf( SYS_WRN, "WARNING: failed to parse user command %s\n", value );
-						continue;
-					}
-				}
-				// maybe this new shortcut is overriding another one
-				// then we need to disable the other binded key
-				for ( j = 0; j < g_nCommandCount; j++ )
-				{
-					if ( j == i ) {
-						continue;
-					}
-					if ( g_Commands[i].m_nKey == g_Commands[j].m_nKey && g_Commands[i].m_nModifiers == g_Commands[j].m_nModifiers ) {
-						// found!
-						g_Commands[j].m_nKey = 0;
-						// verbose
-						iOverrideCount++;
-						// it's the only one
-						break;
-					}
-				}
-			}
-		}
-		if ( iOverrideCount ) {
-			Sys_Printf( "User's command list overrides %d default commands\n", iOverrideCount );
-		}
-		Sys_Printf( "Parsed %d custom shortcuts\n", iCount );
-	}
-	else{
-		Sys_Printf( "Looked for a '%s' keyboard shortcuts file, not found\n", strINI.GetBuffer() );
-	}
-}
-
 // TTimo: an m_nKey can be set to zero if there's no shorcut binded
 // we also output the count of commands that are not binded .. dunno if it's much use ..
 // (non-binded keys are usually keys that were defined by shortcuts overriden by user prefs)
@@ -3708,11 +3584,13 @@ void MainFrame::ShowMenuItemKeyBindings( GtkWidget* window ){
 		}
 
 		item = g_object_get_data( G_OBJECT( m_pWidget ), g_Commands[i].m_strMenu );
+
 		if ( item == NULL ) {
-			Sys_FPrintf( SYS_WRN, "WARNING: keyboard shortcuts init, no menu item found for command: \"%s\"\n",
-						 g_Commands[i].m_strCommand );
+			//Sys_FPrintf( SYS_WRN, "WARNING: keyboard shortcuts init, no menu item found for command: \"%s\"\n",
+			//			 g_Commands[i].m_strCommand );
 			continue;
 		}
+
 
 		mods = 0;
 		if ( g_Commands[i].m_nModifiers ) { // are there modifiers present?
@@ -4646,20 +4524,6 @@ void MainFrame::OnFileExit(){
 		g_qeglobals_gui.d_edit = NULL;
 		gtk_widget_destroy( m_pWidget );
 	}
-}
-
-void MainFrame::OnFileCheckUpdate(){
-	// build the URL
-	Str URL;
-	URL = "http://www.qeradiant.com/index.php?data=dlupdate&query_dlup=1";
-#ifdef _WIN32
-	URL += "&OS_dlup=1";
-#else
-	URL += "&OS_dlup=2";
-#endif
-	URL += "&Version_dlup=" RADIANT_VERSION;
-	g_PrefsDlg.mGamesDialog.AddPacksURL( URL );
-	OpenURL( m_pWidget, URL.GetBuffer() );
 }
 
 void MainFrame::OnEditUndo(){

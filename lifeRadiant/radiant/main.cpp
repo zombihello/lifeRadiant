@@ -552,31 +552,7 @@ int mainRadiant( int argc, char* argv[] ) {
 	g_strBitmapsPath = g_strAppPath;
 	g_strBitmapsPath += "bitmaps/";
 
-	CGameDialog::UpdateNetrun( false ); // read the netrun configuration
-
-	if ( CGameDialog::GetNetrun() ) {
-		// we have to find a per-user g_strTempPath
-		// this behaves the same as on Linux
-		g_strTempPath = getenv( "USERPROFILE" );
-		if ( !g_strTempPath.GetLength() ) {
-			CString msg;
-			msg = _( "Radiant is configured to run from a network installation.\n" );
-			msg += _( "I couldn't find the environement variable USERPROFILE\n" );
-			msg += _( "I'm going to use C:\\RadiantSettings. Please set USERPROFILE\n" );
-			gtk_MessageBox( NULL, msg, _( "Radiant - Network mode" ), MB_OK );
-			g_strTempPath = "C:\\";
-		}
-		g_strTempPath += "\\RadiantSettings\\";
-		Q_mkdir( g_strTempPath.GetBuffer(), 0755 );
-		g_strTempPath += RADIANT_VERSION;
-		g_strTempPath += "\\";
-		Q_mkdir( g_strTempPath.GetBuffer(), 0755 );
-	}
-	else
-	{
-		// use the core path as temp (to save commandlist.txt, and do the .pid files)
-		g_strTempPath = g_strAppPath;
-	}
+	g_strTempPath = g_strAppPath;
 
 #endif
 
@@ -632,47 +608,12 @@ int mainRadiant( int argc, char* argv[] ) {
 	pid = fopen( g_pidFile.GetBuffer(), "r" );
 	if ( pid != NULL ) {
 		fclose( pid );
-		CString msg;
-
-		if ( remove( g_pidFile.GetBuffer() ) == -1 ) {
-			msg = _( "WARNING: Could not delete " ); msg += g_pidFile;
-			gtk_MessageBox( NULL, msg, _( "Radiant" ), MB_OK | MB_ICONERROR );
-		}
-
-		// in debug, never prompt to clean registry, turn console logging auto after a failed start
-#if !defined( _DEBUG )
-		msg = _( "Found the file " );
-		msg += g_pidFile;
-		msg += _( ".\nThis indicates that Radiant failed during the game selection startup last time it was run.\n"
-			   "Choose YES to clean Radiant's registry settings and shut down Radiant.\n"
-			   "WARNING: the global prefs will be lost if you choose YES." );
-
-		if ( gtk_MessageBox( NULL, msg, _( "Radiant - Reset global startup?" ), MB_YESNO | MB_ICONQUESTION ) == IDYES ) {
-			// remove global prefs and shutdown
-			g_PrefsDlg.mGamesDialog.Reset();
-			// remove the prefs file (like a full reset of the registry)
-			//remove (g_PrefsDlg.m_inipath->str);
-			gtk_MessageBox( NULL, _( "Removed global settings, choose OK to close Radiant." ), _( "Radiant" ), MB_OK );
-			_exit( -1 );
-		}
-		msg = _( "Logging console output to " );
-		msg += g_strTempPath;
-		msg += _( "radiant.log\nRefer to the log if Radiant fails to start again." );
-
-		gtk_MessageBox( NULL, msg, _( "Radiant - Console Log" ), MB_OK );
-#endif
 
 		// set without saving, the class is not in a coherent state yet
 		// just do the value change and call to start logging, CGamesDialog will pickup when relevant
 		g_PrefsDlg.mGamesDialog.m_bLogConsole = true;
 		g_PrefsDlg.mGamesDialog.m_bForceLogConsole = true;
 		Sys_LogFile();
-	}
-
-	// create a primary .pid for global init run
-	pid = fopen( g_pidFile.GetBuffer(), "w" );
-	if ( pid ) {
-		fclose( pid );
 	}
 
 	// a safe check to avoid people running broken installations
@@ -744,13 +685,6 @@ int mainRadiant( int argc, char* argv[] ) {
 	g_qeglobals.disable_ini = false;
 	g_PrefsDlg.Init();
 
-	// close the primary
-	if ( remove( g_pidFile.GetBuffer() ) == -1 ) {
-		CString msg;
-		msg = _( "WARNING: Could not delete " ); msg += g_pidGameFile;
-		gtk_MessageBox( NULL, msg, _( "Radiant" ), MB_OK | MB_ICONERROR );
-	}
-
 	/*!
 	   now the secondary game dependant .pid file
 	 */
@@ -760,38 +694,6 @@ int mainRadiant( int argc, char* argv[] ) {
 	pid = fopen( g_pidGameFile.GetBuffer(), "r" );
 	if ( pid != NULL ) {
 		fclose( pid );
-		CString msg;
-		if ( remove( g_pidGameFile.GetBuffer() ) == -1 ) {
-			msg = _( "WARNING: Could not delete " ); msg += g_pidGameFile;
-			gtk_MessageBox( NULL, msg, _( "Radiant" ), MB_OK | MB_ICONERROR );
-		}
-
-		msg = _( "Found the file " );
-		msg += g_pidGameFile;
-		msg += _( ".\nThis indicates that Radiant failed to load the last time it was run.\n"
-			   "Choose YES to clean Radiant's registry settings and shut down Radiant.\n"
-			   "WARNING: preferences will be lost if you choose YES." );
-
-		// in debug, never prompt to clean registry, turn console logging auto after a failed start
-#if !defined( _DEBUG )
-		//bleh
-		if ( gtk_MessageBox( NULL, msg, _( "Radiant - Clean Registry?" ), MB_YESNO | MB_ICONQUESTION ) == IDYES ) {
-			// remove the game prefs files
-			remove( g_PrefsDlg.m_inipath->str );
-			char buf[PATH_MAX];
-			sprintf( buf, "%sSavedInfo.bin", g_PrefsDlg.m_rc_path->str );
-			remove( buf );
-			// remove the global pref too
-			g_PrefsDlg.mGamesDialog.Reset();
-			gtk_MessageBox( NULL, _( "Cleaned registry settings, choose OK to close Radiant.\nThe next time Radiant runs it will use default settings." ), _( "Radiant" ), MB_OK );
-			_exit( -1 );
-		}
-		msg = _( "Logging console output to " );
-		msg += g_strTempPath;
-		msg += _( "radiant.log\nRefer to the log if Radiant fails to start again." );
-
-		gtk_MessageBox( NULL, msg, _( "Radiant - Console Log" ), MB_OK );
-#endif
 
 		// force console logging on! (will go in prefs too)
 		g_PrefsDlg.mGamesDialog.m_bLogConsole = true;
@@ -799,7 +701,6 @@ int mainRadiant( int argc, char* argv[] ) {
 		Sys_LogFile();
 
 		g_PrefsDlg.LoadPrefs();
-
 	}
 	else
 	{

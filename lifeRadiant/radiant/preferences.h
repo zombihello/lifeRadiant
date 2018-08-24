@@ -415,14 +415,6 @@ void SavePrefs();   ///< save pref variables to file
 /*@}*/
 
 /*!
-   read or set netrun (check file)
-   \param retrieve
-   if false, will check if netrun file is present and will set m_bNetRun
-   if true, will create/erase the netrun file depending on m_bNetRun
-   NOTE: this is not backwards, 'retrieve' means 'retrieve from settings dialog' - in terms of UI
- */
-static void UpdateNetrun( bool retrieve );
-/*!
    get current netrun setting
  */
 static bool GetNetrun();
