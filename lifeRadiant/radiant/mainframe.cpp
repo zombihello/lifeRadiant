@@ -396,7 +396,10 @@ gint HandleCommand( GtkWidget *widget, gpointer data ){
 	if ( id >= CMD_TEXTUREWAD && id <= CMD_TEXTUREWAD_END ) {
 		g_pParentWnd->OnTextureWad( id );
 	}
-
+	else if ( id >= CMD_BSPCOMMAND && id <= CMD_BSPCOMMAND_END )
+	{
+		g_pParentWnd->OnBspCommand( id );
+	}
 	else if ( id >= ID_FILE_RECENT1 && id <= ID_FILE_RECENT4 ) {
 		g_pParentWnd->OnMru( id );
 	}
@@ -1254,12 +1257,10 @@ void MainFrame::create_main_menu( GtkWidget *window, GtkWidget *vbox ){
 									G_CALLBACK( HandleCommand ), ID_SELECTION_MAKE_STRUCTURAL );
 
 	// BSP menu
+	menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Bsp" ) );
 
-
-	//menu = create_sub_menu_with_mnemonic( menu_bar, _( "_Bsp" ) );
-
-	//menu_separator( menu );
-	//g_object_set_data( G_OBJECT( window ), "menu_bsp", menu );
+	menu_separator( menu );
+	g_object_set_data( G_OBJECT( window ), "menu_bsp", menu );
 
 
 	// Grid menu
@@ -3723,7 +3724,7 @@ void MainFrame::CreateQEChildren(){
         // check to see if the project template is versioned
         strcpy( buf, g_pGameDescription->mEnginePath.GetBuffer() );
         strcat( buf, g_pGameDescription->mBaseGame.GetBuffer() );
-        strcat( buf, "/scripts/" );
+        strcat( buf, "/materials/" );
         strcat( buf, PROJECT_TEMPLATE_NAME );
         templateVersion = QE_GetTemplateVersionForProject( buf );
 
@@ -3737,7 +3738,7 @@ void MainFrame::CreateQEChildren(){
 				// for all OSes, we look for the template in the base installation (no homepath here)
 				strcpy( buf, g_pGameDescription->mEnginePath.GetBuffer() );
 				strcat( buf, g_pGameDescription->mBaseGame.GetBuffer() );
-				strcat( buf, "/scripts/" );
+				strcat( buf, "/materials/" );
 				strcat( buf, PROJECT_TEMPLATE_NAME );
 				r = buf;
 			}
@@ -4433,7 +4434,7 @@ void MainFrame::OnFileNewproject(){
 	if ( ( name != NULL ) && ( strlen( name ) > 0 ) ) {
 		CString strNewBasePath;
 
-		// NOTE TTimo this would probably not work right on *nix
+		// NOTE TTimo this would probably not work right on *nixnotex.tga
 		strNewBasePath = g_pGameDescription->mEnginePath.GetBuffer(); // assume paths end with '/'
 		strNewBasePath += name;
 		strNewBasePath += "/";

@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/dev/dev_256_or_128x.jpg",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/dev/dev_256_or_128x.jpg",
+		"color": [255, 0, 0, 255]
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/skip.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/skip.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

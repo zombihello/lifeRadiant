@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/caulk.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/caulk.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

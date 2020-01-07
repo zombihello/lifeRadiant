@@ -646,7 +646,7 @@ bool CShader::Activate(){
 void WINAPI QERApp_LoadShaderFile( const char *filename ){
 	char *pBuff;
 	int nSize = vfsLoadFile( filename, reinterpret_cast < void **>( &pBuff ), 0 );
-	if ( nSize > 0 ) {
+	if ( nSize > 0 ) { 
 		Sys_Printf( "Parsing shaderfile %s\n", filename );
 		g_ScripLibTable.m_pfnStartTokenParsing( pBuff );
 		while ( g_ScripLibTable.m_pfnGetToken( true ) )
@@ -802,7 +802,7 @@ qtexture_t *WINAPI QERApp_Try_Texture_ForName( const char *name ){
 	q->next = *d_qtextures;
 	*d_qtextures = q;
 	// push it in the map
-	g_hash_table_insert( g_ShadersTable.m_pfnQTexmap(), q->name, q );
+	g_hash_table_insert( g_ShadersTable.m_pfnQTexmap(), q->name, q );	
 	return q;
 }
 

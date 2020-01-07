@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "radiant", "radiant\radiant.vcxproj", "{65D02375-63EE-4A8A-9F8E-504B1D5A1D02}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B1983B03-843C-4915-B72A-4D6D59D462E5} = {B1983B03-843C-4915-B72A-4D6D59D462E5}
 		{04213509-5ED3-4C74-B8A2-480BE6F48363} = {04213509-5ED3-4C74-B8A2-480BE6F48363}
 		{BA1BC409-744B-4270-8E47-BA10872313AD} = {BA1BC409-744B-4270-8E47-BA10872313AD}
 		{DDBF170A-42DF-4836-9006-816422E08493} = {DDBF170A-42DF-4836-9006-816422E08493}
@@ -97,6 +98,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "q3data", "tools\quake3\q3data\q3data.vcxproj", "{8DFCF3C0-5EC6-4E28-9D38-23FBE5F214FB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bspc", "bspc\bspc.vcxproj", "{4E4EBC16-F345-4667-84E1-86633BAFDAE6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "materials", "plugins\materials\materials.vcxproj", "{B1983B03-843C-4915-B72A-4D6D59D462E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -329,6 +332,14 @@ Global
 		{4E4EBC16-F345-4667-84E1-86633BAFDAE6}.Release|Win32.ActiveCfg = Release|Win32
 		{4E4EBC16-F345-4667-84E1-86633BAFDAE6}.Release|Win32.Build.0 = Release|Win32
 		{4E4EBC16-F345-4667-84E1-86633BAFDAE6}.Release|x64.ActiveCfg = Release|Win32
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Debug|Win32.Build.0 = Debug|Win32
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Debug|x64.ActiveCfg = Debug|x64
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Debug|x64.Build.0 = Debug|x64
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Release|Win32.ActiveCfg = Release|Win32
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Release|Win32.Build.0 = Release|Win32
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Release|x64.ActiveCfg = Release|x64
+		{B1983B03-843C-4915-B72A-4D6D59D462E5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

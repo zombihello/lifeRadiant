@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/white.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/white.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/donotenter.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/donotenter.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

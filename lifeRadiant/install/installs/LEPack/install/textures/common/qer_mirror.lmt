@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/qer_mirror.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/qer_mirror.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

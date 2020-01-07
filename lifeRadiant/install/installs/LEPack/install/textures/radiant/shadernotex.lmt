@@ -1,0 +1,10 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/radiant/shadernotex.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/radiant/shadernotex.tga"
+	}
+}

@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/cushion.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/cushion.tga",
+		"color": [255, 0, 0, 255]
+	}
+}

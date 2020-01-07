@@ -1,0 +1,79 @@
+
+/*QUAKED light (.65 .65 1) (-8 -8 -8) (8 8 8) LINEAR NOANGLE UNUSED1 UNUSED2 NOGRIDLIGHT
+Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights.
+-------- KEYS --------
+_light OR light : Overrides the default 300 intensity. Negative values may be used for negative lights.
+_color : Weighted RGB value of light color (default 1.0 1.0 1.0 = white).
+target : Lights pointed at a target will be spotlights.
+radius : Overrides the default 64 unit radius of a spotlight at the target point.
+-------- Q3MAP2 KEYS --------
+_sun : Set this key to 1 on a spotlight to make an infinite sun light.
+fade : Fades light attenuation. Only affects linear lights.
+scale : Scales light attenuation, from SOF2/JK2. Scales the "light" value.
+_deviance : Penumbra effect - distance measured in world units for point/spot lights, and degrees for suns (~0.5-3).
+_samples : Penumbra effect - the number of random jitters distributed over the solid arc (~16).
+_filter : Set this key to 1 to toggle on lightmap filtering.
+_filterradius : Filters lightmaps within set radius.
+_anglescale : Scales light attenuation. Smaller values lessens angle attenuation, larger values for sharper, more faceted lighting (default 1.0).
+style : Light style index number associated with worldspawn light style. Values are between 1 and 31.
+-------- SPAWNFLAGS --------
+LINEAR : Use a linear falloff. Default is inverse distance squared (more realistic).
+NOANGLE : Ignore angle attenuation.
+NOGRIDLIGHT : Do not affect the lightgrid (dynamic entity lighting).
+*/
+
+//*****************************************************************************
+// light_* ENTITIES
+//*****************************************************************************
+
+//-----------------------------------------------------------------------------
+
+/*QUAKED light_static_pointlight (.3 .3 1) (-16 -16 -16) (16 16 16)
+Статичный точечный источник света
+
+-------- КЛЮЧИ --------
+
+*/
+
+//-----------------------------------------------------------------------------
+
+//*****************************************************************************
+// info_* ENTITIES
+//*****************************************************************************
+
+//-----------------------------------------------------------------------------
+
+/*QUAKED info_static_prop (0 0.48 0.69) (-16 -16 -24) (16 16 32)
+Позиция спавна статичной модели
+
+-------- КЛЮЧИ --------
+Rotation : Угол поворота модели по X Y Z (по стандарту 0 0 0)
+ModelName : Название модели для загрузки
+AnimationName : Название проигруемой анимации
+*/
+
+//-----------------------------------------------------------------------------
+
+/*QUAKED info_start_position (1 0 0) (-16 -16 -24) (16 16 32)
+Позиция спавна игрока
+
+-------- КЛЮЧИ --------
+Healtch : Здоровье игрока при старте (по стандарту 100)
+Armor : Броня игрока при старте (по стандарту 0)
+*/
+
+//-----------------------------------------------------------------------------
+
+//*****************************************************************************
+// WORLDSPAWN ENTITY
+//*****************************************************************************
+
+/*QUAKED worldspawn (0 0 0) ?
+Используется только для окружения
+
+-------- КЛЮЧИ --------
+AmbientColor : RGB значение цвета окружающей среды (по стандарту 0 0 0).
+Skybox : Название скайбокса для этой карты.
+*/
+
+//-----------------------------------------------------------------------------

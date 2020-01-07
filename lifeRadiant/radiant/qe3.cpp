@@ -1569,7 +1569,7 @@ void ProjectDialog(){
 char *bsp_commands[256];
 
 void FillBSPMenu(){
-	/*
+	
 	GtkWidget *item, *menu; // menu points to a GtkMenu (not an item)
 	epair_t *ep;
 	GList *children, *lst;
@@ -1641,7 +1641,6 @@ void FillBSPMenu(){
 			}
 		}
 	}
-	*/
 }
 
 //==============================================

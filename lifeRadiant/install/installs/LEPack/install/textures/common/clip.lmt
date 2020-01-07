@@ -1,0 +1,11 @@
+{
+	"surface": "wood",
+	"shader": "LightmappedGeneric",
+	"editor": "textures/common/clip.tga",
+
+	"shader_parameters": 
+	{
+		"basetexture": "textures/common/clip.tga",
+		"color": [255, 0, 0, 255]
+	}
+}
