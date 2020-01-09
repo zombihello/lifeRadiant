@@ -131,6 +131,7 @@
     <ClCompile Include="pm_3ds.c" />
     <ClCompile Include="pm_ase.c" />
     <ClCompile Include="pm_fm.c" />
+    <ClCompile Include="pm_lmd.c" />
     <ClCompile Include="pm_lwo.c" />
     <ClCompile Include="pm_md2.c" />
     <ClCompile Include="pm_md3.c" />

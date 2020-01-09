@@ -240,7 +240,7 @@ extern "C" CSynapseClient * SYNAPSE_DLL_EXPORT Synapse_EnumerateInterfaces( cons
 	initialise();
 
 	add_model_apis( g_SynapseClient );
-	g_SynapseClient.AddAPI( TOOLBAR_MAJOR, "model", sizeof( _QERPlugToolbarTable ) );
+	//g_SynapseClient.AddAPI( TOOLBAR_MAJOR, "model", sizeof( _QERPlugToolbarTable ) );
 	g_SynapseClient.AddAPI( PLUGIN_MAJOR, "model", sizeof( _QERPluginTable ) );
 
 	g_SynapseClient.AddAPI( RADIANT_MAJOR, NULL, sizeof( g_FuncTable ), SYN_REQUIRE, &g_FuncTable );

@@ -103,7 +103,8 @@ void CPicoSurface::Draw( int state, IShader *pShader, int rflags ){
 
 	switch ( PicoGetSurfaceType( m_pSurface ) )
 	{
-	case PICO_TRIANGLES:  g_QglTable.m_pfn_qglBegin( GL_TRIANGLES );
+	case PICO_TRIANGLES:  
+		g_QglTable.m_pfn_qglBegin( GL_TRIANGLES );
 		for ( j = 0; j < PicoGetSurfaceNumIndexes( m_pSurface ); j++ )
 		{
 			g_QglTable.m_pfn_qglNormal3fv( PicoGetSurfaceNormal( m_pSurface,PicoGetSurfaceIndex( m_pSurface,j ) ) );
